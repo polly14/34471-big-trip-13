@@ -1,7 +1,7 @@
 # Проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Аполлинария Бакова](https://up.htmlacademy.ru/ecmascript/13/user/34471).
-* Наставник: `Неизвестно`.
+* Наставник: [Михаил Полюбай](https://htmlacademy.ru/profile/id1342307).
 
 ---
 
