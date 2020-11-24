@@ -1,7 +1,6 @@
 import {createDaysTemplate} from "./view/days.js";
 import {createFilterTemplate} from "./view/filters.js";
-import {createFormEditTemplate} from "./view/form-edit.js";
-import {createFormNewTemplate} from "./view/form-new.js";
+import {createFormTemplate} from "./view/form.js";
 import {createNoPointsTemplate} from "./view/no-points.js";
 import {createPriceTemplate} from "./view/price.js";
 import {createRouteInfoTemplate} from "./view/route-info.js";
@@ -9,17 +8,30 @@ import {createRoutePointTemplate} from "./view/route-point.js";
 import {createSiteMenuTemplate} from "./view/site-menu.js";
 import {createSortingTemplate} from "./view/sorting.js";
 import {createTripEventsMsgTemplate} from "./view/trip-events-msg.js";
+import {generateRoutePoint} from "./mock/route-point.js";
 
-const POINTS_COUNT = 3;
+const POINTS_COUNT = 15;
+
+const points = new Array(POINTS_COUNT).fill().map(generateRoutePoint);
+
+points.sort(function (a, b) {
+  if (a.pointStartTime > b.pointStartTime) {
+    return 1;
+  }
+  if (a.pointStartTime < b.pointStartTime) {
+    return -1;
+  }
+  return 0;
+});
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
 };
 
 const tripMain = document.querySelector(`.trip-main`);
-render(tripMain, createPriceTemplate(), `afterbegin`);
+render(tripMain, createPriceTemplate(points), `afterbegin`);
 const tripInfo = document.querySelector(`.trip-info`);
-render(tripInfo, createRouteInfoTemplate(), `afterbegin`);
+render(tripInfo, createRouteInfoTemplate(points), `afterbegin`);
 
 const tripMainTripControls = document.querySelector(`.trip-main__trip-controls`);
 const tripMainTripControlsTitles = tripMainTripControls.querySelectorAll(`h2.visually-hidden`);
@@ -28,17 +40,15 @@ render(tripMainTripControlsTitles[1], createFilterTemplate(), `afterend`);
 
 const tripEvents = document.querySelector(`.trip-events`);
 
-render(tripEvents, createFormNewTemplate(), `beforeend`);
+render(tripEvents, createFormTemplate(points[0]), `beforeend`);
 render(tripEvents, createSortingTemplate(), `beforeend`);
 render(tripEvents, createDaysTemplate(), `beforeend`);
 
 const tripEventsList = document.querySelector(`.trip-events__list`);
 
-for (let i = 0; i < POINTS_COUNT; i++) {
-  render(tripEventsList, createRoutePointTemplate(), `beforeend`);
+for (let i = 1; i < POINTS_COUNT; i++) {
+  render(tripEventsList, createRoutePointTemplate(points[i]), `beforeend`);
 }
-render(tripEventsList, createFormEditTemplate(), `beforeend`);
-
 
 render(tripEvents, createTripEventsMsgTemplate(), `beforeend`);
 render(tripEvents, createNoPointsTemplate(), `beforeend`);
