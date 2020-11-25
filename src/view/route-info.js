@@ -1,6 +1,21 @@
-export const createRouteInfoTemplate = () => {
+import {dateHumanize} from "../utils/point.js";
+const destinationPoints = [];
+
+export const createRouteInfoTemplate = (points) => {
+
+  for (let a = 0; a < points.length; a++) {
+    destinationPoints.push(points[a].destination);
+  }
+
+  const start = points[0].pointStartTime;
+  const end = points[points.length - 1].pointStartTime;
+
+  const startDate = start ? dateHumanize(start, `MMM DD`) : `...`;
+  const endDate = end ? dateHumanize(end, `MMM DD`) : `...`;
+  const middlePoint = points.length - 2 ? destinationPoints[Math.round(points.length / 2)] : `...`;
+
   return `<div class="trip-info__main">
-    <h1 class="trip-info__title">Amsterdam &mdash; Chamonix &mdash; Geneva</h1>
-    <p class="trip-info__dates">Mar 18&nbsp;&mdash;&nbsp;20</p>
+    <h1 class="trip-info__title">${destinationPoints[0]} &mdash; ${middlePoint} &mdash; ${destinationPoints[destinationPoints.length - 1]}</h1>
+    <p class="trip-info__dates">${startDate}&nbsp;&mdash;&nbsp;${endDate}</p>
   </div>`;
 };
