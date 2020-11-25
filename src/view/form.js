@@ -1,6 +1,8 @@
 import {getCurrentDate, dateHumanize} from "../utils/point.js";
 import {TYPES, TYPEGROUPS, DESTINATIONS} from "../const.js";
 import {counter} from "../utils/common.js";
+import {generateDescription} from "../mock/route-point.js";
+
 
 const createItemTypes = (item) => {
   return `<div class="event__type-item">
@@ -39,7 +41,6 @@ export const createFormTemplate = (point = {}) => {
     offersList = null,
     pointType = TYPES[0],
     destination = ``,
-    description = ``,
     pointPrice = ``,
     pointStartTime = getCurrentDate(),
     pointEndTime = getCurrentDate(),
@@ -138,7 +139,7 @@ export const createFormTemplate = (point = {}) => {
                   ${detailItemsTemplate}
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${description}</p>
+                    <p class="event__destination-description">${generateDescription(destination)}</p>
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
                         ${photoTemplate}

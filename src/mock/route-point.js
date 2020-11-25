@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import {TYPES, DESTINATIONS, OFFERS} from "../const.js";
-import {getRandomInteger, shuffle} from "../utils/common.js";
+import {getRandomInteger} from "../utils/common.js";
 
 export const generateOffer = () => {
   const randomOffer = OFFERS[getRandomInteger(0, OFFERS.length - 1)].offers;
@@ -20,11 +20,15 @@ const generateDestination = () => {
   return DESTINATIONS[randomIndexDest].name;
 };
 
-const generateDescription = () => {
-  const text = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`.split(`.`);
-  const randomIndex = getRandomInteger(1, 5);
-  const textBlock = shuffle(text).slice(0, randomIndex);
-  return `${textBlock.map((it) => `${it}`).join(``)}`;
+export const generateDescription = (item) => {
+
+  for (let i = 0; i < DESTINATIONS.length; i++) {
+    if (DESTINATIONS[i].name === item) {
+      return DESTINATIONS[i].description;
+    }
+  }
+  return ``;
+
 };
 
 export const generatePhotos = () => {
@@ -64,7 +68,6 @@ export const generateRoutePoint = () => {
     pointType: getRandomPointType(),
     offersList: generateOffer(),
     destination: generateDestination(),
-    description: generateDescription(),
     photos: generatePhotos(),
     pointPrice: generatePrice(),
     pointStartTime: generateStartDate(),
