@@ -14,15 +14,7 @@ const POINTS_COUNT = 15;
 
 const points = new Array(POINTS_COUNT).fill().map(generateRoutePoint);
 
-points.sort(function (a, b) {
-  if (a.pointStartTime > b.pointStartTime) {
-    return 1;
-  }
-  if (a.pointStartTime < b.pointStartTime) {
-    return -1;
-  }
-  return 0;
-});
+points.sort((a, b) => a.pointStartTime - b.pointStartTime);
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
