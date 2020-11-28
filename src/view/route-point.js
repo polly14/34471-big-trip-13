@@ -1,3 +1,4 @@
+import {createElement} from "../utils/render.js";
 import {dateHumanize, getDuration} from "../utils/point.js";
 
 const createPointOffersTemplate = (item) => {
@@ -12,7 +13,7 @@ const createPointOffersTemplate = (item) => {
   </li>`;
 };
 
-export const createRoutePointTemplate = (point) => {
+const createRoutePointTemplate = (point) => {
 
   const {offersList, pointType, destination, pointPrice, pointStartTime, pointEndTime, isFavorite} = point;
 
@@ -70,3 +71,26 @@ export const createRoutePointTemplate = (point) => {
               </div>
             </li>`;
 };
+
+export default class RoutePoint {
+  constructor(point) {
+    this._element = null;
+    this._point = point;
+  }
+
+  getTemplate() {
+    return createRoutePointTemplate(this._point);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

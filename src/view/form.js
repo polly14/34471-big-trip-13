@@ -1,8 +1,18 @@
+import {createElement} from "../utils/render.js";
 import {getCurrentDate, dateHumanize} from "../utils/point.js";
 import {TYPES, TYPEGROUPS, DESTINATIONS} from "../const.js";
 import {counter} from "../utils/common.js";
 import {generateDescription} from "../mock/route-point.js";
 
+const BLANK_POINT = {
+  offersList: null,
+  pointType: TYPES[0],
+  destination: ``,
+  pointPrice: ``,
+  pointStartTime: getCurrentDate(),
+  pointEndTime: getCurrentDate(),
+  photos: ``,
+};
 
 const createItemTypes = (item) => {
   return `<div class="event__type-item">
@@ -35,17 +45,8 @@ const createItemFormDetails = (item) => {
   </div>`;
 };
 
-export const createFormTemplate = (point = {}) => {
-
-  const {
-    offersList = null,
-    pointType = TYPES[0],
-    destination = ``,
-    pointPrice = ``,
-    pointStartTime = getCurrentDate(),
-    pointEndTime = getCurrentDate(),
-    photos = ``,
-  } = point;
+const createFormTemplate = (point) => {
+  const {offersList, pointType, destination, pointPrice, pointStartTime, pointEndTime, photos} = point;
 
   const typeItemsTemplate = (g) => {
     const typeItems = TYPES.filter((item) => TYPEGROUPS[TYPES.indexOf(item)].group === g)
@@ -149,3 +150,27 @@ export const createFormTemplate = (point = {}) => {
                 </section>
               </form>`;
 };
+
+export default class Form {
+  constructor(points = BLANK_POINT) {
+    this._element = null;
+    this._points = points;
+  }
+
+  getTemplate() {
+    return createFormTemplate(this._points);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
+

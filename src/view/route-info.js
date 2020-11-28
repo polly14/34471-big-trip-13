@@ -1,7 +1,8 @@
+import {createElement} from "../utils/render.js";
 import {dateHumanize} from "../utils/point.js";
 const destinationPoints = [];
 
-export const createRouteInfoTemplate = (points) => {
+const createRouteInfoTemplate = (points) => {
 
   for (let a = 0; a < points.length; a++) {
     destinationPoints.push(points[a].destination);
@@ -19,3 +20,26 @@ export const createRouteInfoTemplate = (points) => {
     <p class="trip-info__dates">${startDate}&nbsp;&mdash;&nbsp;${endDate}</p>
   </div>`;
 };
+
+export default class RouteInfo {
+  constructor(points) {
+    this._element = null;
+    this._points = points;
+  }
+
+  getTemplate() {
+    return createRouteInfoTemplate(this._points);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
