@@ -1,3 +1,4 @@
+import {createElement} from "../utils/render.js";
 import {FilterType} from "../const.js";
 
 const createItemFilter = (item) => {
@@ -9,7 +10,7 @@ const createItemFilter = (item) => {
 };
 
 const filters = Object.keys(FilterType);
-export const createFilterTemplate = () => {
+const createFilterTemplate = () => {
 
   const filterItemsTemplate = filters
     .map((item, index) => createItemFilter(item, index === 0))
@@ -20,3 +21,26 @@ export const createFilterTemplate = () => {
     <button class="visually-hidden" type="submit">Accept filter</button>
   </form>`;
 };
+
+
+export default class Filter {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilterTemplate();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
