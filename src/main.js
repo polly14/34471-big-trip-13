@@ -11,7 +11,7 @@ import TripEventsMsgView from "./view/trip-events-msg.js";
 import {generateRoutePoint} from "./mock/route-point.js";
 import {render, RenderPosition} from "./utils/render.js";
 
-const POINTS_COUNT = 15;
+const POINTS_COUNT = 12;
 
 const points = new Array(POINTS_COUNT).fill().map(generateRoutePoint);
 
@@ -20,7 +20,6 @@ points.sort((a, b) => a.pointStartTime - b.pointStartTime);
 const tripMain = document.querySelector(`.trip-main`);
 render(tripMain, new PriceView(points).getElement(), RenderPosition.AFTERBEGIN);
 const tripInfo = document.querySelector(`.trip-info`);
-render(tripInfo, new RouteInfoView(points).getElement(), RenderPosition.AFTERBEGIN);
 
 const tripMainTripControls = document.querySelector(`.trip-main__trip-controls`);
 const tripMainTripControlsTitles = tripMainTripControls.querySelectorAll(`h2.visually-hidden`);
@@ -41,26 +40,43 @@ const renderPoint = (pointListElement, point) => {
     pointListElement.replaceChild(pointComponent.getElement(), pointEditComponent.getElement());
   };
 
+  const onEscKeyDown = (evt) => {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      evt.preventDefault();
+      replaceFormToCard();
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    }
+  };
+
   pointComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
     replaceCardToForm();
+    document.addEventListener(`keydown`, onEscKeyDown);
   });
 
   pointEditComponent.getElement().addEventListener(`submit`, (evt) => {
     evt.preventDefault();
     replaceFormToCard();
+    document.removeEventListener(`keydown`, onEscKeyDown);
   });
-
 
   render(pointListElement, pointComponent.getElement(), RenderPosition.BEFOREEND);
 };
 
-render(tripEvents, new SortingView().getElement(), RenderPosition.BEFOREEND);
-const pointListComponent = new DaysView();
-render(tripEvents, pointListComponent.getElement(), RenderPosition.BEFOREEND);
+const renderBoard = (boardContainer, boardPoints) => {
+  if (boardPoints.length === 0) {
+    render(boardContainer, new NoPointsView().getElement(), RenderPosition.BEFOREEND);
+  } else {
+    render(tripInfo, new RouteInfoView(boardPoints).getElement(), RenderPosition.AFTERBEGIN);
+    render(boardContainer, new SortingView().getElement(), RenderPosition.BEFOREEND);
+    const pointListComponent = new DaysView();
+    render(boardContainer, pointListComponent.getElement(), RenderPosition.BEFOREEND);
 
-for (let i = 0; i < POINTS_COUNT; i++) {
-  renderPoint(pointListComponent.getElement(), points[i]);
-}
+    for (let i = 0; i < POINTS_COUNT; i++) {
+      renderPoint(pointListComponent.getElement(), boardPoints[i]);
+    }
+  }
+};
+
+renderBoard(tripEvents, points);
 
 render(tripEvents, new TripEventsMsgView().getElement(), RenderPosition.BEFOREEND);
-render(tripEvents, new NoPointsView().getElement(), RenderPosition.BEFOREEND);
