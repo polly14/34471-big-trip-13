@@ -1,4 +1,4 @@
-import {createElement} from "../utils/render.js";
+import AbstractView from "./abstract.js";
 let sum = 0;
 
 const createPriceTemplate = (point) => {
@@ -13,9 +13,9 @@ const createPriceTemplate = (point) => {
   </section>`;
 };
 
-export default class Price {
+export default class Price extends AbstractView {
   constructor(points) {
-    this._element = null;
+    super();
     this._points = points;
   }
 
@@ -23,15 +23,4 @@ export default class Price {
     return createPriceTemplate(this._points);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
-  }
 }
