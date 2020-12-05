@@ -1,4 +1,4 @@
-import {createElement} from "../utils/render.js";
+import AbstractView from "./abstract.js";
 import {dateHumanize} from "../utils/point.js";
 const destinationPoints = [];
 
@@ -21,9 +21,9 @@ const createRouteInfoTemplate = (points) => {
   </div>`;
 };
 
-export default class RouteInfo {
+export default class RouteInfo extends AbstractView {
   constructor(points) {
-    this._element = null;
+    super();
     this._points = points;
   }
 
@@ -31,15 +31,4 @@ export default class RouteInfo {
     return createRouteInfoTemplate(this._points);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
-  }
 }
