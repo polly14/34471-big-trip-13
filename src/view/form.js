@@ -135,6 +135,9 @@ const createFormTemplate = (point) => {
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
                   <button class="event__reset-btn" type="reset">Cancel</button>
+                  <button class="event__rollup-btn" type="button">
+                    <span class="visually-hidden">Open event</span>
+                  </button>
                 </header>
                 <section class="event__details">
                   ${detailItemsTemplate}
@@ -155,7 +158,7 @@ export default class Form extends AbstractView {
   constructor(points = BLANK_POINT) {
     super();
     this._points = points;
-
+    this._editRollupHandler = this._editRollupHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
   }
 
@@ -165,13 +168,24 @@ export default class Form extends AbstractView {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.formSubmit(this._points);
   }
 
   setFormSubmitHandler(callback) {
     this._callback.formSubmit = callback;
     this.getElement().addEventListener(`submit`, this._formSubmitHandler);
   }
+
+  _editRollupHandler(evt) {
+    evt.preventDefault();
+    this._callback.editClick();
+  }
+
+  setEditRollupHandler(callback) {
+    this._callback.editClick = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editRollupHandler);
+  }
+
 
 }
 
