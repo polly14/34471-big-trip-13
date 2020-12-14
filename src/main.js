@@ -5,7 +5,7 @@ import {generateRoutePoint} from "./mock/route-point.js";
 import BoardPresenter from "./presenter/trip.js";
 import {render, RenderPosition} from "./utils/render.js";
 
-const POINTS_COUNT = 12;
+const POINTS_COUNT = 16;
 
 const points = new Array(POINTS_COUNT).fill().map(generateRoutePoint);
 
