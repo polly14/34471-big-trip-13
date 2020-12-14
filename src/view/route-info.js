@@ -1,12 +1,13 @@
 import AbstractView from "./abstract.js";
 import {dateHumanize} from "../utils/point.js";
-const destinationPoints = [];
 
 const createRouteInfoTemplate = (points) => {
+  const destinationPoints = [];
 
   for (let a = 0; a < points.length; a++) {
     destinationPoints.push(points[a].destination);
   }
+
 
   const start = points[0].pointStartTime;
   const end = points[points.length - 1].pointStartTime;

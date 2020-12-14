@@ -26,3 +26,44 @@ export const getDuration = (dateB, dateC) => {
   }
 
 };
+
+const getWeightForNullDate = (dateA, dateB) => {
+  if (dateA === null && dateB === null) {
+    return 0;
+  }
+
+  if (dateA === null) {
+    return 1;
+  }
+
+  if (dateB === null) {
+    return -1;
+  }
+
+  return null;
+};
+
+export const sortPointTimeChange = (taskA, taskB) => {
+
+  taskA.duration = dayjs(taskA.pointStartTime).diff(dayjs(taskA.pointEndTime));
+  taskB.duration = dayjs(taskB.pointStartTime).diff(dayjs(taskB.pointEndTime));
+
+  const weight = getWeightForNullDate(taskA.duration, taskB.duration);
+
+  if (weight !== null) {
+    return weight;
+  }
+
+  return taskA.duration - taskB.duration;
+};
+
+export const sortPointPriceChange = (taskA, taskB) => {
+  const weight = getWeightForNullDate(taskA.pointPrice, taskB.pointPrice);
+
+  if (weight !== null) {
+    return weight;
+  }
+
+  return taskB.pointPrice - taskA.pointPrice;
+};
+
