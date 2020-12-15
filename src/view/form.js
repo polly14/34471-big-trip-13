@@ -1,8 +1,8 @@
-import AbstractView from "./abstract.js";
+import SmartView from "./smart.js";
 import {getCurrentDate, dateHumanize} from "../utils/point.js";
 import {TYPES, TYPEGROUPS, DESTINATIONS} from "../const.js";
 import {counter} from "../utils/common.js";
-import {generateDescription} from "../mock/route-point.js";
+import {generateDescription, generateOffer, generatePhotos} from "../mock/route-point.js";
 
 const BLANK_POINT = {
   offersList: null,
@@ -45,8 +45,8 @@ const createItemFormDetails = (item) => {
   </div>`;
 };
 
-const createFormTemplate = (point) => {
-  const {offersList, pointType, destination, pointPrice, pointStartTime, pointEndTime, photos} = point;
+const createFormTemplate = (data) => {
+  const {offersList, pointType, destination, pointPrice, pointStartTime, pointEndTime, photos, isStartTimeSelected, isEndTimeSelected, isPointPrice} = data;
 
   const typeItemsTemplate = (g) => {
     const typeItems = TYPES.filter((item) => TYPEGROUPS[TYPES.indexOf(item)].group === g)
@@ -119,10 +119,10 @@ const createFormTemplate = (point) => {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateHumanize(pointStartTime, `DD/MM/YY HH:mm`)}">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${isStartTimeSelected ? dateHumanize(pointStartTime, `DD/MM/YY HH:mm`) : ``}">
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateHumanize(pointEndTime, `DD/MM/YY HH:mm`)}">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${isEndTimeSelected ? dateHumanize(pointEndTime, `DD/MM/YY HH:mm`) : ``}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -130,7 +130,7 @@ const createFormTemplate = (point) => {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${pointPrice}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isPointPrice ? pointPrice : ``}">
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -154,21 +154,89 @@ const createFormTemplate = (point) => {
               </form>`;
 };
 
-export default class Form extends AbstractView {
-  constructor(points = BLANK_POINT) {
+export default class Form extends SmartView {
+  constructor(items = BLANK_POINT) {
     super();
-    this._points = points;
+    this._data = Form.parsePointToData(items);
     this._editRollupHandler = this._editRollupHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._destinationToggleHandler = this._destinationToggleHandler.bind(this);
+    this._pointPriceToggleHandler = this._pointPriceToggleHandler.bind(this);
+    this._typeToggleHandler = this._typeToggleHandler.bind(this);
+
+    this._setInnerHandlers();
+  }
+
+  reset(items) {
+    this.updateData(
+        Form.parsePointToData(items)
+    );
   }
 
   getTemplate() {
-    return createFormTemplate(this._points);
+    return createFormTemplate(this._data);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+
+    this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setEditRollupHandler(this._callback.editClick);
+
+  }
+
+  _setInnerHandlers() {
+    this.getElement()
+      .querySelector(`.event__input--destination`)
+      .addEventListener(`input`, this._destinationToggleHandler);
+    this.getElement()
+      .querySelector(`.event__input--price`)
+      .addEventListener(`input`, this._pointPriceToggleHandler);
+    this.getElement()
+      .querySelector(`.event__type-list`)
+      .addEventListener(`click`, this._typeToggleHandler);
+  }
+
+  _destinationToggleHandler(evt) {
+    if (!evt.target.value) {
+      evt.preventDefault();
+      this.updateData({
+        destination: evt.target.value,
+        description: ``,
+        photos: ``
+      }, false);
+    } else if (evt.target.value) {
+      evt.preventDefault();
+      this.updateData({
+        destination: evt.target.value,
+        description: generateDescription(evt.target.value),
+        photos: generatePhotos()
+      }, false);
+    }
+  }
+
+  _pointPriceToggleHandler(evt) {
+    if (evt.target.value) {
+      evt.preventDefault();
+      this.updateData({
+        pointPrice: evt.target.value,
+      }, true);
+    }
+  }
+
+  _typeToggleHandler(evt) {
+    if (evt.target.value) {
+      evt.preventDefault();
+      this.updateData({
+        pointType: evt.target.value,
+        offersList: generateOffer(),
+      }, false);
+    }
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit(this._points);
+    this._callback.formSubmit(Form.parsePointToData(this._data));
   }
 
   setFormSubmitHandler(callback) {
@@ -185,7 +253,36 @@ export default class Form extends AbstractView {
     this._callback.editClick = callback;
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editRollupHandler);
   }
+  static parsePointToData(items) {
+    return Object.assign(
+        {},
+        items,
+        {
+          isStartTimeSelected: items.pointStartTime !== null,
+          isEndTimeSelected: items.pointEndTime !== null,
+          isPointPrice: items.pointPrice !== null,
+        }
+    );
+  }
 
+  static parseDataToPoint(data) {
+    data = Object.assign({}, data);
+    if (!data.isStartTimeSelected) {
+      data.pointStartTime = null;
+    }
+    if (!data.isEndTimeSelected) {
+      data.pointEndTime = null;
+    }
+    if (!data.isPointPrice) {
+      data.pointPrice = null;
+    }
+
+    delete data.isStartTimeSelected;
+    delete data.isEndTimeSelected;
+    delete data.isPointPrice;
+
+    return data;
+  }
 
 }
 
