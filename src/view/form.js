@@ -4,6 +4,10 @@ import {TYPES, TYPEGROUPS, DESTINATIONS} from "../const.js";
 import {counter} from "../utils/common.js";
 import {generateDescription, generateOffer, generatePhotos} from "../mock/route-point.js";
 
+import flatpickr from "flatpickr";
+
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
+
 const BLANK_POINT = {
   offersList: null,
   pointType: TYPES[0],
@@ -86,6 +90,8 @@ const createFormTemplate = (data) => {
     .map((item, index) => createPhotos(item, index === 0))
     .join(``);
 
+  const isSubmitDisabled = (destination === ``);
+
   return `<form class="event event--edit" action="#" method="post">
                 <header class="event__header">
                   <div class="event__type-wrapper">
@@ -133,7 +139,7 @@ const createFormTemplate = (data) => {
                     <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isPointPrice ? pointPrice : ``}">
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled ? `disabled` : ``}>Save</button>
                   <button class="event__reset-btn" type="reset">Cancel</button>
                   <button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
@@ -143,7 +149,7 @@ const createFormTemplate = (data) => {
                   ${detailItemsTemplate}
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${generateDescription(destination)}</p>
+                    <p class="event__destination-description">${isSubmitDisabled ? `` : generateDescription(destination)}</p>
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
                         ${photoTemplate}
@@ -158,6 +164,10 @@ export default class Form extends SmartView {
   constructor(items = BLANK_POINT) {
     super();
     this._data = Form.parsePointToData(items);
+    this._startDatepicker = null;
+    this._endDatepicker = null;
+    this._startTimeChangeHandler = this._startTimeChangeHandler.bind(this);
+    this._endTimeChangeHandler = this._endTimeChangeHandler.bind(this);
     this._editRollupHandler = this._editRollupHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._destinationToggleHandler = this._destinationToggleHandler.bind(this);
@@ -165,6 +175,8 @@ export default class Form extends SmartView {
     this._typeToggleHandler = this._typeToggleHandler.bind(this);
 
     this._setInnerHandlers();
+    this._setStartTimeDatepicker();
+    this._setEndTimeDatepicker();
   }
 
   reset(items) {
@@ -179,10 +191,67 @@ export default class Form extends SmartView {
 
   restoreHandlers() {
     this._setInnerHandlers();
-
+    this._setStartTimeDatepicker();
+    this._setEndTimeDatepicker();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setEditRollupHandler(this._callback.editClick);
 
+  }
+
+  _setStartTimeDatepicker() {
+    if (this._startDatepicker) {
+
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
+
+    if (this._data.pointStartTime) {
+
+      this._startDatepicker = flatpickr(
+          this.getElement().querySelector(`#event-start-time-1`),
+          {
+            dateFormat: `d/m/y H:i`,
+            enableTime: true,
+            time24hr: true,
+            defaultDate: this._data.pointStartTime,
+            onChange: this._startTimeChangeHandler
+          }
+      );
+    }
+  }
+  _setEndTimeDatepicker() {
+    if (this._endDatepicker) {
+
+      this._endDatepicker.destroy();
+      this._endDatepicker = null;
+    }
+
+    if (this._data.pointEndTime) {
+
+      this._endDatepicker = flatpickr(
+          this.getElement().querySelector(`#event-end-time-1`),
+          {
+            dateFormat: `d/m/y H:i`,
+            enableTime: true,
+            time24hr: true,
+            minDate: this._data.pointStartTime,
+            defaultDate: this._data.pointEndTime,
+            onChange: this._endTimeChangeHandler
+          }
+      );
+    }
+  }
+
+  _startTimeChangeHandler([userDate]) {
+    this.updateData({
+      pointStartTime: userDate
+    }, false);
+  }
+
+  _endTimeChangeHandler([userDate]) {
+    this.updateData({
+      pointEndTime: userDate
+    }, false);
   }
 
   _setInnerHandlers() {
