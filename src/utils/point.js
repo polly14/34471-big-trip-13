@@ -4,6 +4,19 @@ export const getCurrentDate = () => {
   return dayjs();
 };
 
+export const isDatePast = (date) => {
+  if (date < getCurrentDate()) {
+    return true;
+  }
+  return false;
+};
+export const isDateFuture = (date) => {
+  if (date > getCurrentDate()) {
+    return true;
+  }
+  return false;
+};
+
 export const dateHumanize = (d, format) => {
   return dayjs(d).format(format);
 };
@@ -43,6 +56,18 @@ const getWeightForNullDate = (dateA, dateB) => {
   return null;
 };
 
+export const sortDefault = (a, b) => {
+
+  if (a.pointStartTime > b.pointStartTime) {
+    return 1;
+  }
+  if (a.pointStartTime < b.pointStartTime) {
+    return -1;
+  }
+  return 0;
+
+};
+
 export const sortPointTimeChange = (taskA, taskB) => {
 
   taskA.duration = dayjs(taskA.pointStartTime).diff(dayjs(taskA.pointEndTime));
@@ -67,3 +92,6 @@ export const sortPointPriceChange = (taskA, taskB) => {
   return taskB.pointPrice - taskA.pointPrice;
 };
 
+export const isDatesEqual = (dateA, dateB) => {
+  return (dateA === null && dateB === null) ? true : dayjs(dateA).isSame(dateB, `D`);
+};

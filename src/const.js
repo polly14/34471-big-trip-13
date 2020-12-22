@@ -1,3 +1,15 @@
+export const UserAction = {
+  UPDATE_POINT: `UPDATE_POINT`,
+  ADD_POINT: `ADD_POINT`,
+  DELETE_POINT: `DELETE_POINT`
+};
+
+export const UpdateType = {
+  PATCH: `PATCH`,
+  MINOR: `MINOR`,
+  MAJOR: `MAJOR`
+};
+
 export const TYPES = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`, `Check-in`, `Sightseeing`, `Restaurant`];
 
 export const DESTINATIONS = [
@@ -338,7 +350,7 @@ export const TYPEGROUPS = [
 ];
 
 export const SortType = {
-  DEFAULT: `event`,
+  DEFAULT: `day`,
   TIME: `time`,
   PRICE: `price`
 };
