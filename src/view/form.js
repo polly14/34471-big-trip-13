@@ -1,6 +1,6 @@
 import SmartView from "./smart.js";
 import {getCurrentDate, dateHumanize} from "../utils/point.js";
-import {TYPES, TYPEGROUPS, DESTINATIONS} from "../const.js";
+import {TYPES, TYPEGROUPS} from "../const.js";
 import {counter} from "../utils/common.js";
 import {generateDescription, generateOffer, generatePhotos} from "../mock/route-point.js";
 import flatpickr from "flatpickr";
@@ -25,7 +25,7 @@ const createItemTypes = (item) => {
 };
 
 const createDestinationsList = (item) => {
-  return `<option value="${item.name}">${item.name}</option>`;
+  return `<option value="${item}">${item}</option>`;
 };
 
 const createPhotos = (item) => {
@@ -49,7 +49,7 @@ const createItemFormDetails = (item) => {
 };
 
 const createFormTemplate = (data, isNewPoint) => {
-  const {offersList, pointType, destination, pointPrice, pointStartTime, pointEndTime, photos, isStartTimeSelected, isEndTimeSelected, isPointPrice} = data;
+  const {offersList, pointType, destination, destinationList, pointPrice, pointStartTime, pointEndTime, photos, isStartTimeSelected, isEndTimeSelected, isPointPrice} = data;
 
   const typeItemsTemplate = (g) => {
     const typeItems = TYPES.filter((item) => TYPEGROUPS[TYPES.indexOf(item)].group === g)
@@ -59,7 +59,7 @@ const createFormTemplate = (data, isNewPoint) => {
   };
 
   const destListTemplate = () => {
-    const typeItems = DESTINATIONS
+    const typeItems = destinationList
       .map((item, index) => createDestinationsList(item, index === 0))
       .join(``);
     return typeItems;
@@ -89,7 +89,7 @@ const createFormTemplate = (data, isNewPoint) => {
     .map((item, index) => createPhotos(item, index === 0))
     .join(``);
 
-  const isSubmitDisabled = (destination === ``);
+  const isSubmitDisabled = (destination === `` || destinationList.indexOf(destination) === -1);
 
   return `<form class="event event--edit" action="#" method="post">
                 <header class="event__header">
@@ -117,7 +117,7 @@ const createFormTemplate = (data, isNewPoint) => {
                       ${pointType} ${typePretext()}
                     </label>
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1" >
-                    <datalist id="destination-list-1">
+                    <datalist id="destination-list-1" >
                       ${destListTemplate()}
                     </datalist>
                   </div>

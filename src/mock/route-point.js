@@ -30,6 +30,14 @@ const getRandomPointType = () => {
   return TYPES[randomIndexTypes];
 };
 
+const generateDestinationList = () => {
+  const destList = [];
+  for (let i = 0; i < DESTINATIONS.length; i++) {
+    destList.push(DESTINATIONS[i].name);
+  }
+  return destList;
+};
+
 const generateDestination = () => {
   const randomIndexDest = getRandomInteger(0, DESTINATIONS.length - 1);
   return DESTINATIONS[randomIndexDest].name;
@@ -82,6 +90,7 @@ export const generateRoutePoint = () => {
   return {
     pointType: getRandomPointType(),
     offersList: generatePointOffers(),
+    destinationList: generateDestinationList(),
     destination: generateDestination(),
     photos: generatePhotos(),
     pointPrice: generatePrice(),
