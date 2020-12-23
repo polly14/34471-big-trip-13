@@ -1,4 +1,4 @@
-import PriceView from "./view/price.js";
+import InfoContainerView from "./view/info-container.js";
 import SiteMenuView from "./view/site-menu.js";
 import {generateRoutePoint} from "./mock/route-point.js";
 import BoardPresenter from "./presenter/trip.js";
@@ -17,7 +17,7 @@ const pointsModel = new PointsModel();
 pointsModel.setPoints(points);
 const filterModel = new FilterModel();
 const tripMain = document.querySelector(`.trip-main`);
-render(tripMain, new PriceView(points), RenderPosition.AFTERBEGIN);
+render(tripMain, new InfoContainerView(), RenderPosition.AFTERBEGIN);
 const tripInfo = document.querySelector(`.trip-info`);
 
 const tripMainTripControls = document.querySelector(`.trip-main__trip-controls`);

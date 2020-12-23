@@ -1,6 +1,7 @@
 import DaysView from "../view/days.js";
 import NoPointsView from "../view/no-points.js";
 import RouteInfoView from "../view/route-info.js";
+import PriceView from "../view/price.js";
 import SortingView from "../view/sorting.js";
 import TripEventsMsgView from "../view/trip-events-msg.js";
 import PointPresenter from "./point.js";
@@ -22,6 +23,7 @@ export default class Trip {
     this._tripInfoContainer = tripInfoContainer;
     this._pointPresenter = {};
     this._dayInfoPresenter = [];
+    this._pricePresenter = [];
     this._currentSortType = SortType.DEFAULT;
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
@@ -120,6 +122,12 @@ export default class Trip {
     this._dayInfoPresenter.push(routeInfoComponent);
   }
 
+  _renderPrice(points) {
+    const priceComponent = new PriceView(points);
+    render(this._tripInfoContainer, priceComponent, RenderPosition.AFTERBEGIN);
+    this._pricePresenter.push(priceComponent);
+  }
+
   _renderSort() {
     if (this._sortComponent !== null) {
       this._sortComponent = null;
@@ -153,6 +161,9 @@ export default class Trip {
     this._dayInfoPresenter.forEach((routeInfoComponent) => remove(routeInfoComponent));
     this._dayInfoPresenter = [];
 
+    this._pricePresenter.forEach((priceComponent) => remove(priceComponent));
+    this._pricePresenter = [];
+
     remove(this._noPointsComponent);
     remove(this._sortComponent);
     if (resetSortType) {
@@ -166,6 +177,7 @@ export default class Trip {
       this._renderNoPoints();
     } else {
       this._renderSort();
+      this._renderPrice(points);
       this._renderRouteInfo(points);
       this._renderPoints(points);
     }
