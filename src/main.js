@@ -32,7 +32,6 @@ const filterPresenter = new FilterPresenter(tripMainTripControlsTitles[1], filte
 filterPresenter.init();
 boardPresenter.init();
 
-document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, (evt) => {
-  evt.preventDefault();
+document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, () => {
   boardPresenter.createPoint();
 });

@@ -2,7 +2,7 @@ import SmartView from "./smart.js";
 import {getCurrentDate, dateHumanize} from "../utils/point.js";
 import {TYPES, TYPEGROUPS} from "../const.js";
 import {counter} from "../utils/common.js";
-import {generateDescription, generateOffer, generatePhotos} from "../mock/route-point.js";
+import {generateDestinationList, generateDescription, generateOffer, generatePhotos} from "../mock/route-point.js";
 import flatpickr from "flatpickr";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
@@ -48,8 +48,10 @@ const createItemFormDetails = (item) => {
   </div>`;
 };
 
+const destinationList = generateDestinationList();
+
 const createFormTemplate = (data, isNewPoint) => {
-  const {offersList, pointType, destination, destinationList, pointPrice, pointStartTime, pointEndTime, photos, isStartTimeSelected, isEndTimeSelected, isPointPrice} = data;
+  const {offersList, pointType, destination, pointPrice, pointStartTime, pointEndTime, photos, isStartTimeSelected, isEndTimeSelected, isPointPrice} = data;
 
   const typeItemsTemplate = (g) => {
     const typeItems = TYPES.filter((item) => TYPEGROUPS[TYPES.indexOf(item)].group === g)

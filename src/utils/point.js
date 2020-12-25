@@ -5,16 +5,11 @@ export const getCurrentDate = () => {
 };
 
 export const isDatePast = (date) => {
-  if (date < getCurrentDate()) {
-    return true;
-  }
-  return false;
+  return (date < getCurrentDate());
 };
+
 export const isDateFuture = (date) => {
-  if (date > getCurrentDate()) {
-    return true;
-  }
-  return false;
+  return (date > getCurrentDate());
 };
 
 export const dateHumanize = (d, format) => {
@@ -56,17 +51,7 @@ const getWeightForNullDate = (dateA, dateB) => {
   return null;
 };
 
-export const sortDefault = (a, b) => {
-
-  if (a.pointStartTime > b.pointStartTime) {
-    return 1;
-  }
-  if (a.pointStartTime < b.pointStartTime) {
-    return -1;
-  }
-  return 0;
-
-};
+export const sortDefault = (a, b) => a.pointStartTime - b.pointStartTime;
 
 export const sortPointTimeChange = (taskA, taskB) => {
 
