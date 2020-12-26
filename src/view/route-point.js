@@ -20,6 +20,7 @@ const createRoutePointTemplate = (point) => {
   const favorite = isFavorite ? `event__favorite-btn--active` : ``;
 
   const offersTemplate = () => {
+
     const offersCheckedList = offersList.filter((item) => item.isOfferChecked === 1)
       .splice(0, 3)
       .map((item, index) => createPointOffersTemplate(item, index === 0))

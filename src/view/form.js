@@ -1,18 +1,17 @@
 import SmartView from "./smart.js";
 import {getCurrentDate, dateHumanize} from "../utils/point.js";
-import {TYPES, TYPEGROUPS, DESTINATIONS} from "../const.js";
+import {TYPES, TYPEGROUPS} from "../const.js";
 import {counter} from "../utils/common.js";
-import {generateDescription, generateOffer, generatePhotos} from "../mock/route-point.js";
-
+import {generateDestinationList, generateDescription, generateOffer, generatePhotos} from "../mock/route-point.js";
 import flatpickr from "flatpickr";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_POINT = {
-  offersList: null,
+  offersList: generateOffer(TYPES[0]),
   pointType: TYPES[0],
   destination: ``,
-  pointPrice: ``,
+  pointPrice: `0`,
   pointStartTime: getCurrentDate(),
   pointEndTime: getCurrentDate(),
   photos: ``,
@@ -26,7 +25,7 @@ const createItemTypes = (item) => {
 };
 
 const createDestinationsList = (item) => {
-  return `<option value="${item.name}">${item.name}</option>`;
+  return `<option value="${item}">${item}</option>`;
 };
 
 const createPhotos = (item) => {
@@ -49,7 +48,9 @@ const createItemFormDetails = (item) => {
   </div>`;
 };
 
-const createFormTemplate = (data) => {
+const destinationList = generateDestinationList();
+
+const createFormTemplate = (data, isNewPoint) => {
   const {offersList, pointType, destination, pointPrice, pointStartTime, pointEndTime, photos, isStartTimeSelected, isEndTimeSelected, isPointPrice} = data;
 
   const typeItemsTemplate = (g) => {
@@ -60,7 +61,7 @@ const createFormTemplate = (data) => {
   };
 
   const destListTemplate = () => {
-    const typeItems = DESTINATIONS
+    const typeItems = destinationList
       .map((item, index) => createDestinationsList(item, index === 0))
       .join(``);
     return typeItems;
@@ -90,7 +91,7 @@ const createFormTemplate = (data) => {
     .map((item, index) => createPhotos(item, index === 0))
     .join(``);
 
-  const isSubmitDisabled = (destination === ``);
+  const isSubmitDisabled = (destination === `` || destinationList.indexOf(destination) === -1);
 
   return `<form class="event event--edit" action="#" method="post">
                 <header class="event__header">
@@ -117,8 +118,8 @@ const createFormTemplate = (data) => {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${pointType} ${typePretext()}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
-                    <datalist id="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1" >
+                    <datalist id="destination-list-1" >
                       ${destListTemplate()}
                     </datalist>
                   </div>
@@ -136,12 +137,12 @@ const createFormTemplate = (data) => {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isPointPrice ? pointPrice : ``}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${isPointPrice ? pointPrice : ``}">
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled ? `disabled` : ``}>Save</button>
-                  <button class="event__reset-btn" type="reset">Cancel</button>
-                  <button class="event__rollup-btn" type="button">
+                  <button class="event__reset-btn" type="reset">${isNewPoint ? `Cancel` : `Delete`}</button>
+                  <button class="event__rollup-btn" type="button" ${isNewPoint ? `style="display: none;"` : ``}>
                     <span class="visually-hidden">Open event</span>
                   </button>
                 </header>
@@ -161,9 +162,10 @@ const createFormTemplate = (data) => {
 };
 
 export default class Form extends SmartView {
-  constructor(items = BLANK_POINT) {
+  constructor(items = BLANK_POINT, isNewPoint) {
     super();
     this._data = Form.parsePointToData(items);
+    this._isNewPoint = isNewPoint;
     this._startDatepicker = null;
     this._endDatepicker = null;
     this._startTimeChangeHandler = this._startTimeChangeHandler.bind(this);
@@ -173,10 +175,20 @@ export default class Form extends SmartView {
     this._destinationToggleHandler = this._destinationToggleHandler.bind(this);
     this._pointPriceToggleHandler = this._pointPriceToggleHandler.bind(this);
     this._typeToggleHandler = this._typeToggleHandler.bind(this);
+    this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
 
     this._setInnerHandlers();
     this._setStartTimeDatepicker();
     this._setEndTimeDatepicker();
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this._datepicker) {
+      this._datepicker.destroy();
+      this._datepicker = null;
+    }
   }
 
   reset(items) {
@@ -186,7 +198,7 @@ export default class Form extends SmartView {
   }
 
   getTemplate() {
-    return createFormTemplate(this._data);
+    return createFormTemplate(this._data, this._isNewPoint);
   }
 
   restoreHandlers() {
@@ -195,7 +207,7 @@ export default class Form extends SmartView {
     this._setEndTimeDatepicker();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setEditRollupHandler(this._callback.editClick);
-
+    this.setDeleteClickHandler(this._callback.deleteClick);
   }
 
   _setStartTimeDatepicker() {
@@ -244,8 +256,13 @@ export default class Form extends SmartView {
 
   _startTimeChangeHandler([userDate]) {
     this.updateData({
-      pointStartTime: userDate
+      pointStartTime: userDate,
     }, false);
+    if (userDate > this._data.pointEndTime) {
+      this.updateData({
+        pointEndTime: userDate,
+      }, false);
+    }
   }
 
   _endTimeChangeHandler([userDate]) {
@@ -298,7 +315,7 @@ export default class Form extends SmartView {
       evt.preventDefault();
       this.updateData({
         pointType: evt.target.value,
-        offersList: generateOffer(),
+        offersList: generateOffer(evt.target.value),
       }, false);
     }
   }
@@ -322,6 +339,17 @@ export default class Form extends SmartView {
     this._callback.editClick = callback;
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editRollupHandler);
   }
+
+  _formDeleteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.deleteClick(Form.parseDataToPoint(this._data));
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
+  }
+
   static parsePointToData(items) {
     return Object.assign(
         {},

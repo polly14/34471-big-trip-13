@@ -2,9 +2,24 @@ import dayjs from "dayjs";
 import {TYPES, DESTINATIONS, OFFERS} from "../const.js";
 import {getRandomInteger} from "../utils/common.js";
 
-export const generateOffer = () => {
-  const randomOffer = OFFERS[getRandomInteger(0, OFFERS.length - 1)].offers;
-  const offersList = new Array(randomOffer.length).fill().map(() => ({title: randomOffer[getRandomInteger(0, randomOffer.length - 1)].title, price: getRandomInteger(10, 100), isOfferChecked: 1}));
+export const generateOffer = (item) => {
+
+  for (let i = 0; i < OFFERS.length; i++) {
+    if (OFFERS[i].type === item.toLowerCase()) {
+      const currentOffer = OFFERS[i].offers;
+      for (let j = 0; j < currentOffer.length; j++) {
+        currentOffer[j].isOfferChecked = 1;
+      }
+      return currentOffer;
+    }
+  }
+  return ``;
+
+};
+
+const generatePointOffers = () => {
+  const currentOffer = OFFERS[getRandomInteger(0, OFFERS.length - 1)].offers;
+  const offersList = new Array(currentOffer.length).fill().map(() => ({title: currentOffer[getRandomInteger(0, currentOffer.length - 1)].title, price: getRandomInteger(10, 100), isOfferChecked: 1}));
   return offersList;
 };
 
@@ -13,6 +28,14 @@ export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10)
 const getRandomPointType = () => {
   const randomIndexTypes = getRandomInteger(0, TYPES.length - 1);
   return TYPES[randomIndexTypes];
+};
+
+export const generateDestinationList = () => {
+  const destList = [];
+  for (let i = 0; i < DESTINATIONS.length; i++) {
+    destList.push(DESTINATIONS[i].name);
+  }
+  return destList;
 };
 
 const generateDestination = () => {
@@ -66,7 +89,7 @@ export const generateRoutePoint = () => {
 
   return {
     pointType: getRandomPointType(),
-    offersList: generateOffer(),
+    offersList: generatePointOffers(),
     destination: generateDestination(),
     photos: generatePhotos(),
     pointPrice: generatePrice(),
