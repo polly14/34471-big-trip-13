@@ -978,3 +978,7 @@ main {
 
 .statistics__item:not(:last-child) {
   margin-bottom: 78px; }
+
+.noafter::after {
+  display: none;
+}

@@ -1,3 +1,8 @@
+export const MenuItem = {
+  POINTS: `Table`,
+  STATISTICS: `Stats`
+};
+
 export const UserAction = {
   UPDATE_POINT: `UPDATE_POINT`,
   ADD_POINT: `ADD_POINT`,

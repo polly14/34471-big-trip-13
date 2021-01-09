@@ -5,24 +5,28 @@ import {UserAction, UpdateType} from "../const.js";
 
 
 export default class PointNew {
-  constructor(pointListContainer, changeData) {
+  constructor(pointListContainer, changeData, offersModel, destinationsModel) {
     this._pointListContainer = pointListContainer;
     this._changeData = changeData;
-
+    this._offersModel = offersModel;
+    this._destinationsModel = destinationsModel;
     this._pointEditComponent = null;
-
+    this._destroyCallback = null;
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init(point) {
+  init(callback, point) {
+    this._destroyCallback = callback;
+
     this._point = point;
+
     if (this._pointEditComponent !== null) {
       return;
     }
 
-    this._pointEditComponent = new FormView(this._point, true);
+    this._pointEditComponent = new FormView(this._point, this._offersModel, this._destinationsModel, true);
     this._pointEditComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._pointEditComponent.setDeleteClickHandler(this._handleDeleteClick);
 
@@ -36,6 +40,9 @@ export default class PointNew {
       return;
     }
 
+    if (this._destroyCallback !== null) {
+      this._destroyCallback();
+    }
     remove(this._pointEditComponent);
     this._pointEditComponent = null;
 
