@@ -7,14 +7,14 @@ import flatpickr from "flatpickr";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
+
 const BLANK_POINT = {
-  offersList: generateOffer(TYPES[0]),
+  pointOffersList: generateOffer(TYPES[0]),
   pointType: TYPES[0],
   destination: ``,
-  pointPrice: `0`,
+  pointPrice: 0,
   pointStartTime: getCurrentDate(),
-  pointEndTime: getCurrentDate(),
-  photos: ``,
+  pointEndTime: getCurrentDate()
 };
 
 const createItemTypes = (item) => {
@@ -51,7 +51,7 @@ const createItemFormDetails = (item) => {
 const destinationList = generateDestinationList();
 
 const createFormTemplate = (data, isNewPoint) => {
-  const {offersList, pointType, destination, pointPrice, pointStartTime, pointEndTime, photos, isStartTimeSelected, isEndTimeSelected, isPointPrice} = data;
+  const {pointType, pointOffersList, destination, pointPrice, pointStartTime, pointEndTime, isStartTimeSelected, isEndTimeSelected, isPointPrice} = data;
 
   const typeItemsTemplate = (g) => {
     const typeItems = TYPES.filter((item) => TYPEGROUPS[TYPES.indexOf(item)].group === g)
@@ -80,16 +80,18 @@ const createFormTemplate = (data, isNewPoint) => {
   const detailItemsTemplate = `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
-      ${offersList && offersList
+      ${pointOffersList && pointOffersList
         .map((item, index) => createItemFormDetails(item, index === 0))
         .join(``)}
      </div>
   </section>`;
 
-  const pointPhotos = photos || [];
-  const photoTemplate = pointPhotos
+  const photoTemplate = function (photos) {
+    const pointPhotos = photos || [];
+    return pointPhotos
     .map((item, index) => createPhotos(item, index === 0))
     .join(``);
+  };
 
   const isSubmitDisabled = (destination === `` || destinationList.indexOf(destination) === -1);
 
@@ -153,7 +155,7 @@ const createFormTemplate = (data, isNewPoint) => {
                     <p class="event__destination-description">${isSubmitDisabled ? `` : generateDescription(destination)}</p>
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
-                        ${photoTemplate}
+                        ${photoTemplate(generatePhotos(destination))}
                       </div>
                     </div>
                   </section>
@@ -162,9 +164,11 @@ const createFormTemplate = (data, isNewPoint) => {
 };
 
 export default class Form extends SmartView {
-  constructor(items = BLANK_POINT, isNewPoint) {
+  constructor(items = BLANK_POINT, offersModel, destinationsModel, isNewPoint) {
     super();
     this._data = Form.parsePointToData(items);
+    this._offersModel = offersModel;
+    this._destinationsModel = destinationsModel;
     this._isNewPoint = isNewPoint;
     this._startDatepicker = null;
     this._endDatepicker = null;
@@ -293,20 +297,12 @@ export default class Form extends SmartView {
       }, false);
     } else if (evt.target.value) {
       evt.preventDefault();
+
       this.updateData({
         destination: evt.target.value,
-        description: generateDescription(evt.target.value),
-        photos: generatePhotos()
+        description: this._destinationsModel.getDestinations(evt.target.value),
+        photos: this._destinationsModel.getDestinations(evt.target.value)
       }, false);
-    }
-  }
-
-  _pointPriceToggleHandler(evt) {
-    if (evt.target.value) {
-      evt.preventDefault();
-      this.updateData({
-        pointPrice: evt.target.value,
-      }, true);
     }
   }
 
@@ -315,8 +311,17 @@ export default class Form extends SmartView {
       evt.preventDefault();
       this.updateData({
         pointType: evt.target.value,
-        offersList: generateOffer(evt.target.value),
+        pointOffersList: this._offersModel.getOffers(evt.target.value),
       }, false);
+    }
+  }
+
+  _pointPriceToggleHandler(evt) {
+    if (evt.target.value) {
+      evt.preventDefault();
+      this.updateData({
+        pointPrice: Number(evt.target.value),
+      }, true);
     }
   }
 

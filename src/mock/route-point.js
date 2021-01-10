@@ -54,9 +54,13 @@ export const generateDescription = (item) => {
 
 };
 
-export const generatePhotos = () => {
-  const randomIndexDest = getRandomInteger(0, DESTINATIONS.length - 1);
-  return DESTINATIONS[randomIndexDest].pictures;
+export const generatePhotos = (item) => {
+  for (let i = 0; i < DESTINATIONS.length; i++) {
+    if (DESTINATIONS[i].name === item) {
+      return DESTINATIONS[i].pictures;
+    }
+  }
+  return ``;
 };
 
 const generatePrice = () => {
@@ -89,13 +93,12 @@ export const generateRoutePoint = () => {
 
   return {
     pointType: getRandomPointType(),
-    offersList: generatePointOffers(),
+    pointOffersList: generatePointOffers(),
     destination: generateDestination(),
-    photos: generatePhotos(),
     pointPrice: generatePrice(),
     pointStartTime: generateStartDate(),
     pointEndTime: generateEndDate(),
     isFavorite: Boolean(getRandomInteger(0, 1)),
-    id: generateId(),
+    id: generateId()
   };
 };

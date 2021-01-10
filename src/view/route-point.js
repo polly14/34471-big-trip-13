@@ -15,18 +15,18 @@ const createPointOffersTemplate = (item) => {
 
 const createRoutePointTemplate = (point) => {
 
-  const {offersList, pointType, destination, pointPrice, pointStartTime, pointEndTime, isFavorite} = point;
+  const {pointType, pointOffersList, destination, pointPrice, pointStartTime, pointEndTime, isFavorite} = point;
 
   const favorite = isFavorite ? `event__favorite-btn--active` : ``;
 
   const offersTemplate = () => {
-
-    const offersCheckedList = offersList.filter((item) => item.isOfferChecked === 1)
+    const offersCheckedList = pointOffersList.filter((item) => item.isOfferChecked === 1)
       .splice(0, 3)
       .map((item, index) => createPointOffersTemplate(item, index === 0))
       .join(``);
     return offersCheckedList;
   };
+
 
   let pretext = ``;
   const typePretext = () => {
