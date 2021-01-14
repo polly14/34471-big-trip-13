@@ -30,13 +30,6 @@ const getRandomPointType = () => {
   return TYPES[randomIndexTypes];
 };
 
-export const generateDestinationList = () => {
-  const destList = [];
-  for (let i = 0; i < DESTINATIONS.length; i++) {
-    destList.push(DESTINATIONS[i].name);
-  }
-  return destList;
-};
 
 const generateDestination = () => {
   const randomIndexDest = getRandomInteger(0, DESTINATIONS.length - 1);

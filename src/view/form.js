@@ -2,11 +2,9 @@ import SmartView from "./smart.js";
 import {getCurrentDate, dateHumanize} from "../utils/point.js";
 import {TYPES, TYPEGROUPS} from "../const.js";
 import {counter} from "../utils/common.js";
-import {generateDestinationList, generateDescription, generateOffer, generatePhotos} from "../mock/route-point.js";
+import {generateOffer} from "../mock/route-point.js";
 import flatpickr from "flatpickr";
-
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
-
 
 const BLANK_POINT = {
   pointOffersList: generateOffer(TYPES[0]),
@@ -17,15 +15,15 @@ const BLANK_POINT = {
   pointEndTime: getCurrentDate()
 };
 
+const createDestinationsList = (item) => {
+  return `<option value="${item}">${item}</option>`;
+};
+
 const createItemTypes = (item) => {
   return `<div class="event__type-item">
     <input id="event-type-${item.toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${item}">
     <label class="event__type-label  event__type-label--${item.toLowerCase()}" for="event-type-${item.toLowerCase()}-1">${item}</label>
   </div>`;
-};
-
-const createDestinationsList = (item) => {
-  return `<option value="${item}">${item}</option>`;
 };
 
 const createPhotos = (item) => {
@@ -37,7 +35,7 @@ const createItemFormDetails = (item) => {
   const offerTitle = item.title;
   const offerPrice = item.price;
   const offerCounter = counter();
-  const offerChecked = item.isOfferChecked;
+  const offerChecked = item.isChecked;
   return `<div class="event__offer-selector">
     <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${offerCounter}" type="checkbox" name="event-offer-luggage" ${offerChecked ? `checked` : ``}>
     <label class="event__offer-label" for="event-offer-luggage-${offerCounter}">
@@ -48,21 +46,22 @@ const createItemFormDetails = (item) => {
   </div>`;
 };
 
-const destinationList = generateDestinationList();
-
-const createFormTemplate = (data, isNewPoint) => {
+const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
   const {pointType, pointOffersList, destination, pointPrice, pointStartTime, pointEndTime, isStartTimeSelected, isEndTimeSelected, isPointPrice} = data;
 
-  const typeItemsTemplate = (g) => {
-    const typeItems = TYPES.filter((item) => TYPEGROUPS[TYPES.indexOf(item)].group === g)
-      .map((item, index) => createItemTypes(item, index === 0))
-      .join(``);
-    return typeItems;
-  };
+  const destinationList = destinationsData.getAllDestinations();
+  const typesList = offersData.getAllTypes();
 
   const destListTemplate = () => {
     const typeItems = destinationList
       .map((item, index) => createDestinationsList(item, index === 0))
+      .join(``);
+    return typeItems;
+  };
+
+  const typeItemsTemplate = (g) => {
+    const typeItems = typesList.filter((item) => TYPEGROUPS[typesList.indexOf(item)].group === g)
+      .map((item, index) => createItemTypes(item, index === 0))
       .join(``);
     return typeItems;
   };
@@ -86,11 +85,11 @@ const createFormTemplate = (data, isNewPoint) => {
      </div>
   </section>`;
 
-  const photoTemplate = function (photos) {
-    const pointPhotos = photos || [];
+  const photoTemplate = function () {
+    const pointPhotos = destinationsData.getDestinations(destination).pictures || [];
     return pointPhotos
-    .map((item, index) => createPhotos(item, index === 0))
-    .join(``);
+      .map((item, index) => createPhotos(item, index === 0))
+      .join(``);
   };
 
   const isSubmitDisabled = (destination === `` || destinationList.indexOf(destination) === -1);
@@ -152,10 +151,10 @@ const createFormTemplate = (data, isNewPoint) => {
                   ${detailItemsTemplate}
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${isSubmitDisabled ? `` : generateDescription(destination)}</p>
+                    <p class="event__destination-description">${isSubmitDisabled ? `` : destinationsData.getDestinations(destination).description}</p>
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
-                        ${photoTemplate(generatePhotos(destination))}
+                        ${photoTemplate()}
                       </div>
                     </div>
                   </section>
@@ -202,7 +201,7 @@ export default class Form extends SmartView {
   }
 
   getTemplate() {
-    return createFormTemplate(this._data, this._isNewPoint);
+    return createFormTemplate(this._data, this._offersModel, this._destinationsModel, this._isNewPoint);
   }
 
   restoreHandlers() {
@@ -293,15 +292,15 @@ export default class Form extends SmartView {
       this.updateData({
         destination: evt.target.value,
         description: ``,
-        photos: ``
+        pictures: ``
       }, false);
     } else if (evt.target.value) {
       evt.preventDefault();
 
       this.updateData({
         destination: evt.target.value,
-        description: this._destinationsModel.getDestinations(evt.target.value),
-        photos: this._destinationsModel.getDestinations(evt.target.value)
+        description: this._destinationsModel.getDestinations(evt.target.value).description,
+        pictures: this._destinationsModel.getDestinations(evt.target.value).pictures
       }, false);
     }
   }

@@ -20,7 +20,7 @@ const createRoutePointTemplate = (point) => {
   const favorite = isFavorite ? `event__favorite-btn--active` : ``;
 
   const offersTemplate = () => {
-    const offersCheckedList = pointOffersList.filter((item) => item.isOfferChecked === 1)
+    const offersCheckedList = pointOffersList
       .splice(0, 3)
       .map((item, index) => createPointOffersTemplate(item, index === 0))
       .join(``);
@@ -74,16 +74,17 @@ const createRoutePointTemplate = (point) => {
 };
 
 export default class RoutePoint extends AbstractView {
-  constructor(point) {
+  constructor(point, offersModel) {
     super();
     this._point = point;
+    this._offersModel = offersModel;
     this._editClickHandler = this._editClickHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
 
   }
 
   getTemplate() {
-    return createRoutePointTemplate(this._point);
+    return createRoutePointTemplate(this._point, this._offersModel);
   }
   _editClickHandler(evt) {
     evt.preventDefault();

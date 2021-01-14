@@ -255,6 +255,11 @@ export default class Statistics extends SmartView {
     }
   }
 
+  init(points) {
+    this._data = points;
+    this.updateElement();
+  }
+
   getTemplate() {
     return createStatisticsTemplate(this._data);
   }
