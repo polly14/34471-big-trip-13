@@ -7,9 +7,10 @@ export default class Destinations extends Observer {
     this.setDestinations(destinationsList);
   }
 
-  setDestinations(destinationsList) {
+  setDestinations(updateType, destinationsList) {
     if (destinationsList && Array.isArray(destinationsList) && destinationsList.length > 0) {
       this._destinationsList = destinationsList.slice();
+      this._notify(updateType);
     }
   }
 

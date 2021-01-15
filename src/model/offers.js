@@ -15,9 +15,10 @@ export default class Offers extends Observer {
     return [];
   }
 
-  setOffers(offersList) {
+  setOffers(updateType, offersList) {
     if (offersList && Array.isArray(offersList) && offersList.length > 0) {
       this._offersList = offersList;
+      this._notify(updateType);
     }
   }
 

@@ -78,13 +78,21 @@ eventAddBtn.addEventListener(`click`, () => {
   document.querySelector(`.trip-tabs`).style.pointerEvents = `none`;
 });
 
-api.getOffers().then((offers) => {
-  offersModel.setOffers(offers);
-});
+api.getOffers()
+  .then((offers) => {
+    offersModel.setOffers(UpdateType.INIT, offers);
+  })
+  .catch(() => {
+    offersModel.setOffers(UpdateType.INIT, []);
+  });
 
-api.getDestinations().then((destinations) => {
-  destinationsModel.setDestinations(destinations);
-});
+api.getDestinations()
+  .then((destinations) => {
+    destinationsModel.setDestinations(UpdateType.INIT, destinations);
+  })
+  .catch(() => {
+    destinationsModel.setDestinations(UpdateType.INIT, []);
+  });
 
 api.getPoints()
   .then((points) => {
