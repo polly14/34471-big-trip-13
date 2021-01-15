@@ -33,6 +33,12 @@ export default class SiteMenu extends AbstractView {
     this._setMenuActiveItem(evt);
   }
 
+  removeActiveClass() {
+    Array.from(this.getElement().querySelectorAll(`.trip-tabs__btn`)).forEach(function (e) {
+      e.classList.remove(`trip-tabs__btn--active`);
+    });
+  }
+
   setMenuClickHandler(callback) {
     this._callback.menuClick = callback;
     this.getElement().addEventListener(`click`, this._menuClickHandler);

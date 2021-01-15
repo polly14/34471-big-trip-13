@@ -69,30 +69,16 @@ export default class Points extends Observer {
   }
 
   static adaptToServer(point) {
-
-    const adaptedPoint = Object.assign(
-        {},
-        point,
-        {
-          "id": point.id,
-          "type": point.pointType.toLowerCase(),
-          "date_from": point.pointStartTime,
-          "date_to": point.pointEndTime,
-          "destination": point.destination,
-          "base_price": point.pointPrice,
-          "is_favorite": point.isFavorite,
-          "offers": point.pointOffersList
-        }
-    );
-
-    delete adaptedPoint.pointType;
-    delete adaptedPoint.pointStartTime;
-    delete adaptedPoint.isFavorite;
-    delete adaptedPoint.pointEndTime;
-    delete adaptedPoint.pointOffersList;
-    delete adaptedPoint.pointPrice;
-
-    return adaptedPoint;
+    return {
+      "id": point.id,
+      "type": point.pointType.toLowerCase(),
+      "date_from": point.pointStartTime,
+      "date_to": point.pointEndTime,
+      "destination": point.destination,
+      "base_price": point.pointPrice,
+      "is_favorite": point.isFavorite,
+      "offers": point.pointOffersList
+    };
   }
 
 }

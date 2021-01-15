@@ -19,11 +19,7 @@ export default class Destinations extends Observer {
   }
 
   getAllDestinations() {
-    const names = [];
-    for (let i = 0; i < this._destinationsList.length; i++) {
-      names.push(this._destinationsList[i].name);
-    }
-    return names;
+    return this._destinationsList.map(({name}) => name);
   }
 
   static adaptToClient(data) {

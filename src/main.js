@@ -8,11 +8,8 @@ import FilterModel from "./model/filter.js";
 import OffersModel from "./model/offers.js";
 import DestinationsModel from "./model/destinations.js";
 import {render, RenderPosition} from "./utils/render.js";
-import {MenuItem, UpdateType, FilterType} from "./const.js";
+import {END_POINT, AUTHORIZATION, MenuItem, UpdateType, FilterType} from "./const.js";
 import Api from "./api.js";
-
-const AUTHORIZATION = `Basic f534hFg75ghnyfF56`;
-const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
 
 const pointsModel = new PointsModel();
 const filterModel = new FilterModel();
@@ -72,11 +69,14 @@ eventAddBtn.addEventListener(`click`, () => {
   document.querySelector(`.page-main .page-body__container`).classList.remove(`noafter`);
   filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
   boardPresenter.createPoint(handlePointNewFormClose);
-  Array.from(siteMenuComponent.getElement().querySelectorAll(`.trip-tabs__btn`)).forEach(function (e) {
-    e.classList.remove(`trip-tabs__btn--active`);
-  });
+  siteMenuComponent.removeActiveClass();
   document.querySelector(`.trip-tabs`).style.pointerEvents = `none`;
 });
+
+const unblockMenu = () => {
+  render(tripMainTripControlsTitles[0], siteMenuComponent, RenderPosition.AFTEREND);
+  siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
+};
 
 api.getOffers()
   .then((offers) => {
@@ -97,11 +97,9 @@ api.getDestinations()
 api.getPoints()
   .then((points) => {
     pointsModel.setPoints(UpdateType.INIT, points);
-    render(tripMainTripControlsTitles[0], siteMenuComponent, RenderPosition.AFTEREND);
-    siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
+    unblockMenu();
   })
   .catch(() => {
     pointsModel.setPoints(UpdateType.INIT, []);
-    render(tripMainTripControlsTitles[0], siteMenuComponent, RenderPosition.AFTEREND);
-    siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
+    unblockMenu();
   });

@@ -1,3 +1,6 @@
+export const AUTHORIZATION = `Basic f534hFg75ghnyfF56`;
+export const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
+
 export const MenuItem = {
   POINTS: `Table`,
   STATISTICS: `Stats`

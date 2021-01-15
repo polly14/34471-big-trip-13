@@ -29,11 +29,7 @@ export default class Offers extends Observer {
   }
 
   getAllTypes() {
-    const types = [];
-    for (let i = 0; i < this._offersList.length; i++) {
-      types.push(this._offersList[i].type);
-    }
-    return types;
+    return this._offersList.map(({type}) => type);
   }
 
   static adaptToClient(data) {
