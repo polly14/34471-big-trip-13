@@ -1,4 +1,5 @@
 import Observer from "../utils/observer.js";
+import dayjs from 'dayjs';
 
 export default class Points extends Observer {
   constructor() {
@@ -56,29 +57,50 @@ export default class Points extends Observer {
   }
 
   static adaptToClient(data) {
-    return {
-      pointPrice: data.base_price,
-      pointStartTime: data.date_from,
-      pointEndTime: data.date_to,
-      destination: data.destination.name,
-      id: data.id,
-      isFavorite: data.is_favorite,
-      pointOffersList: data.offers,
-      pointType: data.type,
-    };
+
+    data = Object.assign(
+        {},
+        {
+          pointPrice: data.base_price,
+          pointStartTime: dayjs(data.date_from).toDate(),
+          pointEndTime: dayjs(data.date_to).toDate(),
+          destination: data.destination.name,
+          id: data.id,
+          isFavorite: data.is_favorite,
+          pointOffersList: data.offers,
+          pointType: data.type,
+        }
+    );
+
+    delete data.base_price;
+    delete data.date_from;
+    delete data.date_to;
+    delete data.destination.name;
+    delete data.id;
+    delete data.is_favorite;
+    delete data.offers;
+    delete data.type;
+
+    return data;
+
   }
 
   static adaptToServer(point) {
-    return {
-      "id": point.id,
-      "type": point.pointType.toLowerCase(),
-      "date_from": point.pointStartTime,
-      "date_to": point.pointEndTime,
-      "destination": point.destination,
-      "base_price": point.pointPrice,
-      "is_favorite": point.isFavorite,
-      "offers": point.pointOffersList
-    };
+
+    return Object.assign(
+        {},
+        point,
+        {
+          "id": point.id,
+          "type": point.pointType.toLowerCase(),
+          "date_from": point.pointStartTime.toISOString(),
+          "date_to": point.pointEndTime.toISOString(),
+          "destination.name": point.destination,
+          "base_price": point.pointPrice,
+          "is_favorite": point.isFavorite,
+          "offers": point.pointOffersList
+        }
+    );
   }
 
 }

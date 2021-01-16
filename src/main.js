@@ -103,3 +103,4 @@ api.getPoints()
     pointsModel.setPoints(UpdateType.INIT, []);
     unblockMenu();
   });
+

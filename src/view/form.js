@@ -47,7 +47,7 @@ const createItemFormDetails = (item) => {
 };
 
 const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
-  const {pointType, pointOffersList, destination, pointPrice, pointStartTime, pointEndTime, isStartTimeSelected, isEndTimeSelected, isPointPrice} = data;
+  const {pointType, pointOffersList, destination, pointPrice, pointStartTime, pointEndTime, isStartTimeSelected, isOffersSelected, isEndTimeSelected, isPointPrice} = data;
 
   const destinationList = destinationsData.getAllDestinations();
   const typesList = offersData.getAllTypes();
@@ -79,17 +79,21 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
   const detailItemsTemplate = `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
-      ${pointOffersList && pointOffersList
+      ${offersData.getOffers(pointType) && pointOffersList
         .map((item, index) => createItemFormDetails(item, index === 0))
         .join(``)}
      </div>
   </section>`;
 
   const photoTemplate = function () {
-    const pointPhotos = destinationsData.getDestinations(destination).pictures || [];
-    return pointPhotos
-      .map((item, index) => createPhotos(item, index === 0))
-      .join(``);
+    if (destination) {
+      const pointPhotos = destinationsData.getDestinations(destination).pictures || [];
+      return pointPhotos
+        .map((item, index) => createPhotos(item, index === 0))
+        .join(``);
+    } else {
+      return ``;
+    }
   };
 
   const isSubmitDisabled = (destination === `` || destinationList.indexOf(destination) === -1);
@@ -138,7 +142,7 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${isPointPrice ? pointPrice : ``}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${isPointPrice ? pointPrice : 0}">
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled ? `disabled` : ``}>Save</button>
@@ -148,7 +152,7 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
                   </button>
                 </header>
                 <section class="event__details">
-                  ${detailItemsTemplate}
+                  ${isOffersSelected ? detailItemsTemplate : ``}
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
                     <p class="event__destination-description">${isSubmitDisabled ? `` : destinationsData.getDestinations(destination).description}</p>
@@ -362,12 +366,15 @@ export default class Form extends SmartView {
           isStartTimeSelected: items.pointStartTime !== null,
           isEndTimeSelected: items.pointEndTime !== null,
           isPointPrice: items.pointPrice !== null,
+          isOffersSelected: items.pointOffersList !== null,
         }
     );
   }
 
   static parseDataToPoint(data) {
-    data = Object.assign({}, data);
+    data = Object.assign(
+        {},
+        data);
     if (!data.isStartTimeSelected) {
       data.pointStartTime = null;
     }
@@ -377,10 +384,14 @@ export default class Form extends SmartView {
     if (!data.isPointPrice) {
       data.pointPrice = null;
     }
+    if (!data.isOffersSelected) {
+      data.pointOffersList = null;
+    }
 
     delete data.isStartTimeSelected;
     delete data.isEndTimeSelected;
     delete data.isPointPrice;
+    delete data.isOffersSelected;
 
     return data;
   }

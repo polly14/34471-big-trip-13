@@ -45,10 +45,6 @@ export default class Trip {
 
   hide() {
     this._boardContainer.classList.add(`visually-hidden`);
-
-    //    remove(this._daysComponent);
-    //    this._pointsModel.removeObserver(this._handleModelEvent);
-    //    this._filterModel.removeObserver(this._handleModelEvent);
   }
 
   show() {
@@ -162,9 +158,6 @@ export default class Trip {
   }
 
   _renderPoint(point) {
-    //    const offers = this._offersModel.getOffers(point.pointType);
-    //    const checkedOffers = this._offersModel.getCheckedOffers(offers, point.pointType);
-    //    const destination = this._destinationsModel.getDestinations(point.destination);
 
     const pointPresenter = new PointPresenter(this._daysComponent, this._handleViewAction, this._handleModeChange, this._offersModel, this._destinationsModel);
     pointPresenter.init(point, this._offersModel, this._destinationsModel);

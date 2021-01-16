@@ -2,9 +2,9 @@ import Observer from "../utils/observer.js";
 
 export default class Offers extends Observer {
 
-  constructor(offersList) {
+  constructor() {
     super();
-    this.setOffers(offersList);
+    this._offersList = [];
   }
 
   getOffers(pointType) {
