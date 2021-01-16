@@ -64,18 +64,20 @@ export default class Points extends Observer {
           pointPrice: data.base_price,
           pointStartTime: dayjs(data.date_from).toDate(),
           pointEndTime: dayjs(data.date_to).toDate(),
-          destination: data.destination.name,
+          nameDestination: data.destination.name,
+          picturesDestination: data.destination.pictures,
+          descriptionDestination: data.destination.description,
           id: data.id,
           isFavorite: data.is_favorite,
           pointOffersList: data.offers,
-          pointType: data.type,
+          pointType: data.type
         }
     );
 
     delete data.base_price;
     delete data.date_from;
     delete data.date_to;
-    delete data.destination.name;
+    delete data.destination;
     delete data.id;
     delete data.is_favorite;
     delete data.offers;
@@ -95,12 +97,16 @@ export default class Points extends Observer {
           "type": point.pointType.toLowerCase(),
           "date_from": point.pointStartTime.toISOString(),
           "date_to": point.pointEndTime.toISOString(),
-          "destination.name": point.destination,
+          "destination": {},
+          "destination.name": point.nameDestination,
+          "destination.description": point.descriptionDestination,
+          "destination.pictures": point.picturesDestination,
           "base_price": point.pointPrice,
           "is_favorite": point.isFavorite,
           "offers": point.pointOffersList
         }
     );
+
   }
 
 }

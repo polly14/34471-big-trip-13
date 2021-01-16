@@ -9,7 +9,7 @@ import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 const BLANK_POINT = {
   pointOffersList: generateOffer(TYPES[0]),
   pointType: TYPES[0],
-  destination: ``,
+  nameDestination: ``,
   pointPrice: 0,
   pointStartTime: getCurrentDate(),
   pointEndTime: getCurrentDate()
@@ -47,7 +47,7 @@ const createItemFormDetails = (item) => {
 };
 
 const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
-  const {pointType, pointOffersList, destination, pointPrice, pointStartTime, pointEndTime, isStartTimeSelected, isOffersSelected, isEndTimeSelected, isPointPrice} = data;
+  const {pointType, pointOffersList, nameDestination, picturesDestination, descriptionDestination, pointPrice, pointStartTime, pointEndTime, isStartTimeSelected, isOffersSelected, isEndTimeSelected, isPointPrice} = data;
 
   const destinationList = destinationsData.getAllDestinations();
   const typesList = offersData.getAllTypes();
@@ -86,8 +86,8 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
   </section>`;
 
   const photoTemplate = function () {
-    if (destination) {
-      const pointPhotos = destinationsData.getDestinations(destination).pictures || [];
+    if (picturesDestination) {
+      const pointPhotos = picturesDestination || [];
       return pointPhotos
         .map((item, index) => createPhotos(item, index === 0))
         .join(``);
@@ -96,7 +96,7 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
     }
   };
 
-  const isSubmitDisabled = (destination === `` || destinationList.indexOf(destination) === -1);
+  const isSubmitDisabled = (nameDestination === `` || destinationList.indexOf(nameDestination) === -1);
 
   return `<form class="event event--edit" action="#" method="post">
                 <header class="event__header">
@@ -123,7 +123,7 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${pointType} ${typePretext()}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1" >
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${nameDestination}" list="destination-list-1" >
                     <datalist id="destination-list-1" >
                       ${destListTemplate()}
                     </datalist>
@@ -155,7 +155,7 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
                   ${isOffersSelected ? detailItemsTemplate : ``}
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${isSubmitDisabled ? `` : destinationsData.getDestinations(destination).description}</p>
+                    <p class="event__destination-description">${isSubmitDisabled ? `` : descriptionDestination}</p>
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
                         ${photoTemplate()}
@@ -294,17 +294,17 @@ export default class Form extends SmartView {
     if (!evt.target.value) {
       evt.preventDefault();
       this.updateData({
-        destination: evt.target.value,
-        description: ``,
-        pictures: ``
+        nameDestination: evt.target.value,
+        descriptionDestination: ``,
+        picturesDestination: []
       }, false);
     } else if (evt.target.value) {
       evt.preventDefault();
-
       this.updateData({
-        destination: evt.target.value,
-        description: this._destinationsModel.getDestinations(evt.target.value).description,
-        pictures: this._destinationsModel.getDestinations(evt.target.value).pictures
+        nameDestination: evt.target.value,
+        descriptionDestination: this._destinationsModel.getDestinations(evt.target.value).description,
+        picturesDestination: this._destinationsModel.getDestinations(evt.target.value).pictures
+
       }, false);
     }
   }
