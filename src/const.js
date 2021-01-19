@@ -1,3 +1,6 @@
+export const AUTHORIZATION = `Basic f534hFg75ghnyfF56`;
+export const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
+
 export const MenuItem = {
   POINTS: `Table`,
   STATISTICS: `Stats`
@@ -12,10 +15,11 @@ export const UserAction = {
 export const UpdateType = {
   PATCH: `PATCH`,
   MINOR: `MINOR`,
-  MAJOR: `MAJOR`
+  MAJOR: `MAJOR`,
+  INIT: `INIT`
 };
 
-export const TYPES = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`, `Check-in`, `Sightseeing`, `Restaurant`];
+export const TYPES = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `check-in`, `sightseeing`, `restaurant`];
 
 export const DESTINATIONS = [
   {
@@ -171,12 +175,6 @@ export const OFFERS = [
     "type": `taxi`,
     "offers": [
       {
-        "title": `Upgrade to a business class`,
-        "price": 120
-      }, {
-        "title": `Choose the radio station`,
-        "price": 60
-      }, {
         "title": `Waiting`,
         "price": 30
       }, {

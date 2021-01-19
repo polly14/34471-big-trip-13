@@ -5,7 +5,7 @@ const createRouteInfoTemplate = (points) => {
   const destinationPoints = [];
 
   for (let a = 0; a < points.length; a++) {
-    destinationPoints.push(points[a].destination);
+    destinationPoints.push(points[a].nameDestination);
   }
 
 

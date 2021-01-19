@@ -1,20 +1,22 @@
 import SmartView from "./smart.js";
-import {getCurrentDate, dateHumanize} from "../utils/point.js";
+import dayjs from "dayjs";
+import {dateHumanize, generateOffer} from "../utils/point.js";
 import {TYPES, TYPEGROUPS} from "../const.js";
 import {counter} from "../utils/common.js";
-import {generateDestinationList, generateDescription, generateOffer, generatePhotos} from "../mock/route-point.js";
 import flatpickr from "flatpickr";
-
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
-
 
 const BLANK_POINT = {
   pointOffersList: generateOffer(TYPES[0]),
   pointType: TYPES[0],
-  destination: ``,
+  nameDestination: ``,
   pointPrice: 0,
-  pointStartTime: getCurrentDate(),
-  pointEndTime: getCurrentDate()
+  pointStartTime: dayjs(),
+  pointEndTime: dayjs()
+};
+
+const createDestinationsList = (item) => {
+  return `<option value="${item}">${item}</option>`;
 };
 
 const createItemTypes = (item) => {
@@ -24,20 +26,16 @@ const createItemTypes = (item) => {
   </div>`;
 };
 
-const createDestinationsList = (item) => {
-  return `<option value="${item}">${item}</option>`;
-};
-
 const createPhotos = (item) => {
   const photoSrc = item.src;
-  return `<img class="event__photo" src="${photoSrc}${Math.random()}" alt="Event photo">`;
+  return `<img class="event__photo" src="${photoSrc}" alt="Event photo">`;
 };
 
 const createItemFormDetails = (item) => {
   const offerTitle = item.title;
   const offerPrice = item.price;
   const offerCounter = counter();
-  const offerChecked = item.isOfferChecked;
+  const offerChecked = item.isChecked;
   return `<div class="event__offer-selector">
     <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${offerCounter}" type="checkbox" name="event-offer-luggage" ${offerChecked ? `checked` : ``}>
     <label class="event__offer-label" for="event-offer-luggage-${offerCounter}">
@@ -48,21 +46,22 @@ const createItemFormDetails = (item) => {
   </div>`;
 };
 
-const destinationList = generateDestinationList();
+const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
+  const {pointType, pointOffersList, nameDestination, picturesDestination, descriptionDestination, pointPrice, pointStartTime, pointEndTime, isStartTimeSelected, isOffers, isEndTimeSelected, isPointPrice} = data;
 
-const createFormTemplate = (data, isNewPoint) => {
-  const {pointType, pointOffersList, destination, pointPrice, pointStartTime, pointEndTime, isStartTimeSelected, isEndTimeSelected, isPointPrice} = data;
-
-  const typeItemsTemplate = (g) => {
-    const typeItems = TYPES.filter((item) => TYPEGROUPS[TYPES.indexOf(item)].group === g)
-      .map((item, index) => createItemTypes(item, index === 0))
-      .join(``);
-    return typeItems;
-  };
+  const destinationList = destinationsData.getAllDestinations();
+  const typesList = offersData.getAllTypes();
 
   const destListTemplate = () => {
     const typeItems = destinationList
       .map((item, index) => createDestinationsList(item, index === 0))
+      .join(``);
+    return typeItems;
+  };
+
+  const typeItemsTemplate = (g) => {
+    const typeItems = typesList.filter((item) => TYPEGROUPS[typesList.indexOf(item)].group === g)
+      .map((item, index) => createItemTypes(item, index === 0))
       .join(``);
     return typeItems;
   };
@@ -80,20 +79,24 @@ const createFormTemplate = (data, isNewPoint) => {
   const detailItemsTemplate = `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
-      ${pointOffersList && pointOffersList
+      ${offersData.getCheckedOffers(pointOffersList, pointType)
         .map((item, index) => createItemFormDetails(item, index === 0))
         .join(``)}
      </div>
   </section>`;
 
-  const photoTemplate = function (photos) {
-    const pointPhotos = photos || [];
-    return pointPhotos
-    .map((item, index) => createPhotos(item, index === 0))
-    .join(``);
+  const photoTemplate = function () {
+    if (picturesDestination) {
+      const pointPhotos = picturesDestination || [];
+      return pointPhotos
+        .map((item, index) => createPhotos(item, index === 0))
+        .join(``);
+    } else {
+      return ``;
+    }
   };
 
-  const isSubmitDisabled = (destination === `` || destinationList.indexOf(destination) === -1);
+  const isSubmitDisabled = (nameDestination === `` || destinationList.indexOf(nameDestination) === -1);
 
   return `<form class="event event--edit" action="#" method="post">
                 <header class="event__header">
@@ -120,7 +123,7 @@ const createFormTemplate = (data, isNewPoint) => {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${pointType} ${typePretext()}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1" >
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${nameDestination}" list="destination-list-1" >
                     <datalist id="destination-list-1" >
                       ${destListTemplate()}
                     </datalist>
@@ -139,7 +142,7 @@ const createFormTemplate = (data, isNewPoint) => {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${isPointPrice ? pointPrice : ``}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${isPointPrice ? pointPrice : 0}">
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled ? `disabled` : ``}>Save</button>
@@ -149,13 +152,13 @@ const createFormTemplate = (data, isNewPoint) => {
                   </button>
                 </header>
                 <section class="event__details">
-                  ${detailItemsTemplate}
+                  ${isOffers ? detailItemsTemplate : ``}
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${isSubmitDisabled ? `` : generateDescription(destination)}</p>
+                    <p class="event__destination-description">${isSubmitDisabled ? `` : descriptionDestination}</p>
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
-                        ${photoTemplate(generatePhotos(destination))}
+                        ${photoTemplate()}
                       </div>
                     </div>
                   </section>
@@ -165,6 +168,7 @@ const createFormTemplate = (data, isNewPoint) => {
 
 export default class Form extends SmartView {
   constructor(items = BLANK_POINT, offersModel, destinationsModel, isNewPoint) {
+
     super();
     this._data = Form.parsePointToData(items);
     this._offersModel = offersModel;
@@ -179,6 +183,7 @@ export default class Form extends SmartView {
     this._destinationToggleHandler = this._destinationToggleHandler.bind(this);
     this._pointPriceToggleHandler = this._pointPriceToggleHandler.bind(this);
     this._typeToggleHandler = this._typeToggleHandler.bind(this);
+    this._offersToggleHandler = this._offersToggleHandler.bind(this);
     this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
 
     this._setInnerHandlers();
@@ -202,7 +207,7 @@ export default class Form extends SmartView {
   }
 
   getTemplate() {
-    return createFormTemplate(this._data, this._isNewPoint);
+    return createFormTemplate(this._data, this._offersModel, this._destinationsModel, this._isNewPoint);
   }
 
   restoreHandlers() {
@@ -285,23 +290,33 @@ export default class Form extends SmartView {
     this.getElement()
       .querySelector(`.event__type-list`)
       .addEventListener(`click`, this._typeToggleHandler);
+    const isOffer = this.getElement().querySelector(`.event__available-offers`);
+    if (isOffer) {
+      isOffer.addEventListener(`change`, this._offersToggleHandler);
+    }
+    if (isOffer.childNodes.length === 1) {
+      this.getElement().querySelector(`.event__section--offers`).style.display = `none`;
+    }
+    if (this.getElement().querySelector(`.event__destination-description`).childNodes.length === 0) {
+      this.getElement().querySelector(`.event__section--destination`).style.display = `none`;
+    }
   }
 
   _destinationToggleHandler(evt) {
     if (!evt.target.value) {
       evt.preventDefault();
       this.updateData({
-        destination: evt.target.value,
-        description: ``,
-        photos: ``
+        nameDestination: evt.target.value,
+        descriptionDestination: ``,
+        picturesDestination: []
       }, false);
     } else if (evt.target.value) {
       evt.preventDefault();
-
       this.updateData({
-        destination: evt.target.value,
-        description: this._destinationsModel.getDestinations(evt.target.value),
-        photos: this._destinationsModel.getDestinations(evt.target.value)
+        nameDestination: evt.target.value,
+        descriptionDestination: this._destinationsModel.getDestinations(evt.target.value).description,
+        picturesDestination: this._destinationsModel.getDestinations(evt.target.value).pictures
+
       }, false);
     }
   }
@@ -311,8 +326,29 @@ export default class Form extends SmartView {
       evt.preventDefault();
       this.updateData({
         pointType: evt.target.value,
-        pointOffersList: this._offersModel.getOffers(evt.target.value),
+        pointOffersList: []
       }, false);
+    }
+  }
+
+  _offersToggleHandler(evt) {
+    const offersList = this._offersModel.getOffers(this._data.pointType);
+    const offers = this.getElement().querySelectorAll(`.event__available-offers input`);
+    const getOffersCheckedList = () => {
+      const l = [];
+      for (let g = 0; g < offers.length; g++) {
+        if (offers[g].checked) {
+          l.push(offersList[g]);
+        }
+      }
+      return l;
+    };
+    if (evt.target.tagName !== `INPUT`) {
+      return;
+    } if (evt.target) {
+      this.updateData({
+        pointOffersList: getOffersCheckedList(),
+      }, true);
     }
   }
 
@@ -363,12 +399,15 @@ export default class Form extends SmartView {
           isStartTimeSelected: items.pointStartTime !== null,
           isEndTimeSelected: items.pointEndTime !== null,
           isPointPrice: items.pointPrice !== null,
+          isOffers: items.pointOffersList !== null,
         }
     );
   }
 
   static parseDataToPoint(data) {
-    data = Object.assign({}, data);
+    data = Object.assign(
+        {},
+        data);
     if (!data.isStartTimeSelected) {
       data.pointStartTime = null;
     }
@@ -378,10 +417,14 @@ export default class Form extends SmartView {
     if (!data.isPointPrice) {
       data.pointPrice = null;
     }
+    if (!data.isOffers) {
+      data.pointOffersList = null;
+    }
 
     delete data.isStartTimeSelected;
     delete data.isEndTimeSelected;
     delete data.isPointPrice;
+    delete data.isOffers;
 
     return data;
   }

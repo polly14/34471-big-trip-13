@@ -1,4 +1,16 @@
 import dayjs from "dayjs";
+import {OFFERS} from "../const.js";
+export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+
+export const generateOffer = (item) => {
+  for (let i = 0; i < OFFERS.length; i++) {
+    if (OFFERS[i].type === item.toLowerCase()) {
+      const currentOffer = OFFERS[i].offers;
+      return currentOffer.map((it) => Object.assign({}, it, {isChecked: false}));
+    }
+  }
+  return ``;
+};
 
 export const getCurrentDate = () => {
   return dayjs();

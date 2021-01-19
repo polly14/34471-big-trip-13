@@ -15,13 +15,13 @@ const createPointOffersTemplate = (item) => {
 
 const createRoutePointTemplate = (point) => {
 
-  const {pointType, pointOffersList, destination, pointPrice, pointStartTime, pointEndTime, isFavorite} = point;
+  const {pointType, pointOffersList, nameDestination, pointPrice, pointStartTime, pointEndTime, isFavorite} = point;
 
   const favorite = isFavorite ? `event__favorite-btn--active` : ``;
 
   const offersTemplate = () => {
-    const offersCheckedList = pointOffersList.filter((item) => item.isOfferChecked === 1)
-      .splice(0, 3)
+    const offersCheckedList = pointOffersList
+      .slice(0, 3)
       .map((item, index) => createPointOffersTemplate(item, index === 0))
       .join(``);
     return offersCheckedList;
@@ -44,7 +44,7 @@ const createRoutePointTemplate = (point) => {
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${pointType.toLowerCase()}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${pointType} ${typePretext()} ${destination}</h3>
+                <h3 class="event__title">${pointType} ${typePretext()} ${nameDestination}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime="${dateHumanize(pointStartTime, `YYYY/MM/DD HH:mm`)}">${dateHumanize(pointStartTime, `HH:mm`)}</time>
@@ -77,6 +77,7 @@ export default class RoutePoint extends AbstractView {
   constructor(point) {
     super();
     this._point = point;
+
     this._editClickHandler = this._editClickHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
 

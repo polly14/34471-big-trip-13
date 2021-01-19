@@ -1,4 +1,5 @@
 import Observer from "../utils/observer.js";
+import dayjs from 'dayjs';
 
 export default class Points extends Observer {
   constructor() {
@@ -6,8 +7,9 @@ export default class Points extends Observer {
     this._points = [];
   }
 
-  setPoints(points) {
+  setPoints(updateType, points) {
     this._points = points.slice();
+    this._notify(updateType);
   }
 
   getPoints() {
@@ -52,6 +54,59 @@ export default class Points extends Observer {
     ];
 
     this._notify(updateType);
+  }
+
+  static adaptToClient(data) {
+
+    data = Object.assign(
+        {},
+        {
+          pointPrice: data.base_price,
+          pointStartTime: dayjs(data.date_from).toDate(),
+          pointEndTime: dayjs(data.date_to).toDate(),
+          nameDestination: data.destination.name,
+          picturesDestination: data.destination.pictures,
+          descriptionDestination: data.destination.description,
+          id: data.id,
+          isFavorite: data.is_favorite,
+          pointOffersList: data.offers,
+          pointType: data.type
+        }
+    );
+
+    delete data.base_price;
+    delete data.date_from;
+    delete data.date_to;
+    delete data.destination;
+    delete data.is_favorite;
+    delete data.offers;
+    delete data.type;
+
+    return data;
+
+  }
+
+  static adaptToServer(point) {
+
+    return Object.assign(
+        {},
+        point,
+        {
+          "id": point.id,
+          "type": point.pointType.toLowerCase(),
+          "date_from": point.pointStartTime.toISOString(),
+          "date_to": point.pointEndTime.toISOString(),
+          "destination": {
+            "name": point.nameDestination,
+            "description": point.descriptionDestination,
+            "pictures": point.picturesDestination,
+          },
+          "base_price": point.pointPrice,
+          "is_favorite": point.isFavorite,
+          "offers": point.pointOffersList
+        }
+    );
+
   }
 
 }

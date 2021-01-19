@@ -982,3 +982,6 @@ main {
 .noafter::after {
   display: none;
 }
+event__type-label::first-letter {
+  text-transform: uppercase;
+}

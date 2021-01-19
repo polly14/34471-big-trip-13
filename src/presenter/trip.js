@@ -8,11 +8,11 @@ import PointPresenter from "./point.js";
 import PointNewPresenter from "./point-new.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {sortPointTimeChange, sortPointPriceChange, sortDefault} from "../utils/point.js";
-import {SortType, UpdateType, UserAction} from "../const.js";
+import {SortType, UpdateType, UserAction, FilterType} from "../const.js";
 import {filter} from "../utils/filter.js";
 
 export default class Trip {
-  constructor(boardContainer, tripInfoContainer, pointsModel, filterModel, offersModel, destinationsModel) {
+  constructor(boardContainer, tripInfoContainer, pointsModel, filterModel, offersModel, destinationsModel, api) {
     this._pointsModel = pointsModel;
     this._filterModel = filterModel;
     this._offersModel = offersModel;
@@ -27,6 +27,8 @@ export default class Trip {
     this._dayInfoPresenter = [];
     this._pricePresenter = [];
     this._currentSortType = SortType.DEFAULT;
+    this._isLoading = true;
+    this._api = api;
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
@@ -36,26 +38,24 @@ export default class Trip {
 
   init() {
     render(this._boardContainer, this._daysComponent, RenderPosition.BEFOREEND);
-
     this._pointsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
-
     this._renderBoard();
   }
 
-  destroy() {
-    this._clearBoard({resetSortType: true});
-
-    remove(this._daysComponent);
-
-    this._pointsModel.removeObserver(this._handleModelEvent);
-    this._filterModel.removeObserver(this._handleModelEvent);
+  hide() {
+    this._boardContainer.classList.add(`visually-hidden`);
   }
 
+  show() {
+    this._clearBoard({resetSortType: true});
+    this._boardContainer.classList.remove(`visually-hidden`);
+    this._renderBoard();
+  }
 
   createPoint(callback) {
     this._currentSortType = SortType.DEFAULT;
-
+    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this._pointNewPresenter.init(callback);
   }
 
@@ -86,7 +86,9 @@ export default class Trip {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this._pointsModel.updatePoint(updateType, update);
+        this._api.updatePoint(update).then((response) => {
+          this._pointsModel.updatePoint(updateType, response);
+        });
         break;
       case UserAction.ADD_POINT:
         this._pointsModel.addPoint(updateType, update);
@@ -108,6 +110,11 @@ export default class Trip {
         break;
       case UpdateType.MAJOR:
         this._clearBoard({resetSortType: true});
+        this._renderBoard();
+        break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._tripEventsMsgComponent);
         this._renderBoard();
         break;
     }
@@ -151,12 +158,9 @@ export default class Trip {
   }
 
   _renderPoint(point) {
-    //    const offers = this._offersModel.getOffers(point.pointType);
-    //    const checkedOffers = this._offersModel.getCheckedOffers(offers, point.pointType);
-    //    const destination = this._destinationsModel.getDestinations(point.destination);
 
     const pointPresenter = new PointPresenter(this._daysComponent, this._handleViewAction, this._handleModeChange, this._offersModel, this._destinationsModel);
-    pointPresenter.init(point);
+    pointPresenter.init(point, this._offersModel, this._destinationsModel);
     this._pointPresenter[point.id] = pointPresenter;
   }
 
@@ -182,6 +186,7 @@ export default class Trip {
     this._pricePresenter = [];
 
     remove(this._noPointsComponent);
+    remove(this._tripEventsMsgComponent);
     remove(this._sortComponent);
     if (resetSortType) {
       this._currentSortType = SortType.DEFAULT;
@@ -189,6 +194,12 @@ export default class Trip {
   }
 
   _renderBoard() {
+
+    if (this._isLoading) {
+      this._renderTripEventsMsg();
+      return;
+    }
+
     const points = this._getPoints();
     if (points.length === 0) {
       this._renderNoPoints();
