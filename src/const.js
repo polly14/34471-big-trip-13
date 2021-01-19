@@ -175,12 +175,6 @@ export const OFFERS = [
     "type": `taxi`,
     "offers": [
       {
-        "title": `Upgrade to a business class`,
-        "price": 120
-      }, {
-        "title": `Choose the radio station`,
-        "price": 60
-      }, {
         "title": `Waiting`,
         "price": 30
       }, {

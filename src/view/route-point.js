@@ -21,7 +21,7 @@ const createRoutePointTemplate = (point) => {
 
   const offersTemplate = () => {
     const offersCheckedList = pointOffersList
-      .splice(0, 3)
+      .slice(0, 3)
       .map((item, index) => createPointOffersTemplate(item, index === 0))
       .join(``);
     return offersCheckedList;

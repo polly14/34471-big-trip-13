@@ -1,8 +1,8 @@
 import SmartView from "./smart.js";
-import {getCurrentDate, dateHumanize} from "../utils/point.js";
+import dayjs from "dayjs";
+import {dateHumanize, generateOffer} from "../utils/point.js";
 import {TYPES, TYPEGROUPS} from "../const.js";
 import {counter} from "../utils/common.js";
-import {generateOffer} from "../mock/route-point.js";
 import flatpickr from "flatpickr";
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
@@ -11,8 +11,8 @@ const BLANK_POINT = {
   pointType: TYPES[0],
   nameDestination: ``,
   pointPrice: 0,
-  pointStartTime: getCurrentDate(),
-  pointEndTime: getCurrentDate()
+  pointStartTime: dayjs(),
+  pointEndTime: dayjs()
 };
 
 const createDestinationsList = (item) => {
@@ -28,7 +28,7 @@ const createItemTypes = (item) => {
 
 const createPhotos = (item) => {
   const photoSrc = item.src;
-  return `<img class="event__photo" src="${photoSrc}${Math.random()}" alt="Event photo">`;
+  return `<img class="event__photo" src="${photoSrc}" alt="Event photo">`;
 };
 
 const createItemFormDetails = (item) => {
@@ -47,7 +47,7 @@ const createItemFormDetails = (item) => {
 };
 
 const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
-  const {pointType, pointOffersList, nameDestination, picturesDestination, descriptionDestination, pointPrice, pointStartTime, pointEndTime, isStartTimeSelected, isOffersSelected, isEndTimeSelected, isPointPrice} = data;
+  const {pointType, pointOffersList, nameDestination, picturesDestination, descriptionDestination, pointPrice, pointStartTime, pointEndTime, isStartTimeSelected, isOffers, isEndTimeSelected, isPointPrice} = data;
 
   const destinationList = destinationsData.getAllDestinations();
   const typesList = offersData.getAllTypes();
@@ -79,7 +79,7 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
   const detailItemsTemplate = `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
-      ${offersData.getOffers(pointType) && pointOffersList
+      ${offersData.getCheckedOffers(pointOffersList, pointType)
         .map((item, index) => createItemFormDetails(item, index === 0))
         .join(``)}
      </div>
@@ -152,7 +152,7 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
                   </button>
                 </header>
                 <section class="event__details">
-                  ${isOffersSelected ? detailItemsTemplate : ``}
+                  ${isOffers ? detailItemsTemplate : ``}
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
                     <p class="event__destination-description">${isSubmitDisabled ? `` : descriptionDestination}</p>
@@ -168,6 +168,7 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
 
 export default class Form extends SmartView {
   constructor(items = BLANK_POINT, offersModel, destinationsModel, isNewPoint) {
+
     super();
     this._data = Form.parsePointToData(items);
     this._offersModel = offersModel;
@@ -182,6 +183,7 @@ export default class Form extends SmartView {
     this._destinationToggleHandler = this._destinationToggleHandler.bind(this);
     this._pointPriceToggleHandler = this._pointPriceToggleHandler.bind(this);
     this._typeToggleHandler = this._typeToggleHandler.bind(this);
+    this._offersToggleHandler = this._offersToggleHandler.bind(this);
     this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
 
     this._setInnerHandlers();
@@ -288,6 +290,16 @@ export default class Form extends SmartView {
     this.getElement()
       .querySelector(`.event__type-list`)
       .addEventListener(`click`, this._typeToggleHandler);
+    const isOffer = this.getElement().querySelector(`.event__available-offers`);
+    if (isOffer) {
+      isOffer.addEventListener(`change`, this._offersToggleHandler);
+    }
+    if (isOffer.childNodes.length === 1) {
+      this.getElement().querySelector(`.event__section--offers`).style.display = `none`;
+    }
+    if (this.getElement().querySelector(`.event__destination-description`).childNodes.length === 0) {
+      this.getElement().querySelector(`.event__section--destination`).style.display = `none`;
+    }
   }
 
   _destinationToggleHandler(evt) {
@@ -314,8 +326,29 @@ export default class Form extends SmartView {
       evt.preventDefault();
       this.updateData({
         pointType: evt.target.value,
-        pointOffersList: this._offersModel.getOffers(evt.target.value),
+        pointOffersList: []
       }, false);
+    }
+  }
+
+  _offersToggleHandler(evt) {
+    const offersList = this._offersModel.getOffers(this._data.pointType);
+    const offers = this.getElement().querySelectorAll(`.event__available-offers input`);
+    const getOffersCheckedList = () => {
+      const l = [];
+      for (let g = 0; g < offers.length; g++) {
+        if (offers[g].checked) {
+          l.push(offersList[g]);
+        }
+      }
+      return l;
+    };
+    if (evt.target.tagName !== `INPUT`) {
+      return;
+    } if (evt.target) {
+      this.updateData({
+        pointOffersList: getOffersCheckedList(),
+      }, true);
     }
   }
 
@@ -366,7 +399,7 @@ export default class Form extends SmartView {
           isStartTimeSelected: items.pointStartTime !== null,
           isEndTimeSelected: items.pointEndTime !== null,
           isPointPrice: items.pointPrice !== null,
-          isOffersSelected: items.pointOffersList !== null,
+          isOffers: items.pointOffersList !== null,
         }
     );
   }
@@ -384,14 +417,14 @@ export default class Form extends SmartView {
     if (!data.isPointPrice) {
       data.pointPrice = null;
     }
-    if (!data.isOffersSelected) {
+    if (!data.isOffers) {
       data.pointOffersList = null;
     }
 
     delete data.isStartTimeSelected;
     delete data.isEndTimeSelected;
     delete data.isPointPrice;
-    delete data.isOffersSelected;
+    delete data.isOffers;
 
     return data;
   }

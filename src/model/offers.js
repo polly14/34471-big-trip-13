@@ -26,6 +26,7 @@ export default class Offers extends Observer {
     const offersByPoint = this.getOffers(pointType);
     const offersName = offersList.map(({title}) => title);
     return offersByPoint.map((item) => Object.assign({}, item, {isChecked: offersName.includes(item.title)}));
+
   }
 
   getAllTypes() {

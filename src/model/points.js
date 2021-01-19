@@ -78,7 +78,6 @@ export default class Points extends Observer {
     delete data.date_from;
     delete data.date_to;
     delete data.destination;
-    delete data.id;
     delete data.is_favorite;
     delete data.offers;
     delete data.type;
@@ -97,10 +96,11 @@ export default class Points extends Observer {
           "type": point.pointType.toLowerCase(),
           "date_from": point.pointStartTime.toISOString(),
           "date_to": point.pointEndTime.toISOString(),
-          "destination": {},
-          "destination.name": point.nameDestination,
-          "destination.description": point.descriptionDestination,
-          "destination.pictures": point.picturesDestination,
+          "destination": {
+            "name": point.nameDestination,
+            "description": point.descriptionDestination,
+            "pictures": point.picturesDestination,
+          },
           "base_price": point.pointPrice,
           "is_favorite": point.isFavorite,
           "offers": point.pointOffersList
