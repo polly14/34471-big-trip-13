@@ -7,7 +7,11 @@ const Mode = {
   DEFAULT: `DEFAULT`,
   EDITING: `EDITING`
 };
-
+export const State = {
+  SAVING: `SAVING`,
+  DELETING: `DELETING`,
+  ABORTING: `ABORTING`
+};
 
 export default class Point {
   constructor(pointListContainer, changeData, changeMode, offersModel, destinationsModel) {
@@ -49,7 +53,8 @@ export default class Point {
     }
 
     if (this._mode === Mode.EDITING) {
-      replace(this._pointEditComponent, prevPointEditComponent);
+      replace(this._pointComponent, prevPointEditComponent);
+      this._mode = Mode.DEFAULT;
     }
 
     remove(prevPointComponent);
@@ -67,6 +72,35 @@ export default class Point {
     }
   }
 
+  setViewState(state) {
+
+    const resetFormState = () => {
+      this._pointEditComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    switch (state) {
+      case State.SAVING:
+        this._pointEditComponent.updateData({
+          isDisabled: true,
+          isSaving: true
+        });
+        break;
+      case State.DELETING:
+        this._pointEditComponent.updateData({
+          isDisabled: true,
+          isDeleting: true
+        });
+        break;
+      case State.ABORTING:
+        this._pointComponent.shake(resetFormState);
+        this._pointEditComponent.shake(resetFormState);
+        break;
+    }
+  }
 
   _replaceCardToForm() {
     replace(this._pointEditComponent, this._pointComponent);
@@ -111,14 +145,14 @@ export default class Point {
     const isMinorUpdate =
       !isDatesEqual(this._point.pointStartTime, update.pointStartTime) ||
       !isDatesEqual(this._point.pointEndTime, update.pointEndTime) ||
-      this._point.pointPrice !== update.pointPrice;
+      this._point.pointPrice !== update.pointPrice ||
+      this._point.pointOffersList !== update.pointOffersList;
 
     this._changeData(
         UserAction.UPDATE_POINT,
         isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
         update
     );
-    this._replaceFormToCard();
   }
 
   _handleDeleteClick(point) {

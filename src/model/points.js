@@ -88,7 +88,7 @@ export default class Points extends Observer {
 
   static adaptToServer(point) {
 
-    return Object.assign(
+    point = Object.assign(
         {},
         point,
         {
@@ -106,6 +106,8 @@ export default class Points extends Observer {
           "offers": point.pointOffersList
         }
     );
+
+    return point;
 
   }
 
