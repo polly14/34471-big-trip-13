@@ -8,16 +8,20 @@ const createRouteInfoTemplate = (points) => {
     destinationPoints.push(points[a].nameDestination);
   }
 
-
   const start = points[0].pointStartTime;
   const end = points[points.length - 1].pointStartTime;
 
   const startDate = start ? dateHumanize(start, `MMM DD`) : `...`;
   const endDate = end ? dateHumanize(end, `MMM DD`) : `...`;
-  const middlePoint = points.length - 2 ? destinationPoints[Math.round(points.length / 2)] : `...`;
+
+  const middlePoint = points.length - 2 ? ` &mdash; ... &mdash; ` : ` &mdash; `;
 
   return `<div class="trip-info__main">
-    <h1 class="trip-info__title">${destinationPoints[0]} &mdash; ${middlePoint} &mdash; ${destinationPoints[destinationPoints.length - 1]}</h1>
+    <h1 class="trip-info__title">
+      ${destinationPoints[0]}
+      ${middlePoint}
+      ${destinationPoints[destinationPoints.length - 1]}
+    </h1>
     <p class="trip-info__dates">${startDate}&nbsp;&mdash;&nbsp;${endDate}</p>
   </div>`;
 };

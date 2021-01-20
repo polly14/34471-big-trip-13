@@ -3,11 +3,17 @@ import AbstractView from "./abstract.js";
 
 const createPriceTemplate = (point) => {
   let sum = 0;
-  for (let i = 0; i < point.length; i++) {
-    sum += point[i].pointPrice;
-  }
+  const getSum = () => {
+    for (let i = 0; i < point.length; i++) {
+      sum += point[i].pointPrice;
+      for (let p = 0; p < point[i].pointOffersList.length; p++) {
+        sum += point[i].pointOffersList[p].price;
+      }
+    }
+    return sum;
+  };
   return `<p class="trip-info__cost">
-      Total: &euro;&nbsp;<span class="trip-info__cost-value">${sum}</span>
+      Total: &euro;&nbsp;<span class="trip-info__cost-value">${getSum()}</span>
     </p>`;
 };
 
