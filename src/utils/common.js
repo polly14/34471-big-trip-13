@@ -23,3 +23,6 @@ export const shuffle = (a) => {
   return a;
 };
 
+export const isOnline = () => {
+  return window.navigator.onLine;
+};
