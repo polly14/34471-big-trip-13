@@ -1,6 +1,4 @@
 import PointsModel from "../model/points.js";
-import OffersModel from "../model/offers.js";
-import DestinationsModel from "../model/destinations.js";
 import {isOnline} from "../utils/common.js";
 
 const getSyncedPoints = (items) => {
@@ -39,26 +37,26 @@ export default class Provider {
     if (isOnline()) {
       return this._api.getOffers()
         .then((offers) => {
-          const items = createStoreStructure(offers.map(OffersModel.adaptToServer));
+          const items = createStoreStructure(offers);
           this._store.setItems(items);
           return offers;
         });
     }
     const storeOffers = Object.values(this._store.getItems());
-    return Promise.resolve(storeOffers.map(OffersModel.adaptToClient));
+    return Promise.resolve(storeOffers);
   }
 
   getDestinations() {
     if (isOnline()) {
       return this._api.getDestinations()
         .then((destinations) => {
-          const items = createStoreStructure(destinations.map(DestinationsModel.adaptToServer));
+          const items = createStoreStructure(destinations);
           this._store.setItems(items);
           return destinations;
         });
     }
     const storeDestinations = Object.values(this._store.getItems());
-    return Promise.resolve(storeDestinations.map(DestinationsModel.adaptToClient));
+    return Promise.resolve(storeDestinations);
   }
 
   updatePoint(point) {
