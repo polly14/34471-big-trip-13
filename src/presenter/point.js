@@ -1,8 +1,10 @@
 import RoutePointView from "../view/route-point.js";
 import FormView from "../view/form.js";
+import {isOnline} from "../utils/common.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
 import {isDatesEqual} from "../utils/point.js";
+import {toast} from "../utils/toast/toast.js";
 const Mode = {
   DEFAULT: `DEFAULT`,
   EDITING: `EDITING`
@@ -124,6 +126,12 @@ export default class Point {
   }
 
   _handleEditClick() {
+
+    if (!isOnline()) {
+      toast(`You can't edit task offline`);
+      return;
+    }
+
     this._replaceCardToForm();
   }
 
@@ -142,6 +150,11 @@ export default class Point {
   }
 
   _handleFormSubmit(update) {
+    if (!isOnline()) {
+      toast(`You can't save task offline`);
+      return;
+    }
+
     const isMinorUpdate =
       !isDatesEqual(this._point.pointStartTime, update.pointStartTime) ||
       !isDatesEqual(this._point.pointEndTime, update.pointEndTime) ||
@@ -156,6 +169,11 @@ export default class Point {
   }
 
   _handleDeleteClick(point) {
+    if (!isOnline()) {
+      toast(`You can't delete task offline`);
+      return;
+    }
+
     this._changeData(
         UserAction.DELETE_POINT,
         UpdateType.MINOR,

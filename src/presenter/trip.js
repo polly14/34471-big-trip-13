@@ -12,7 +12,7 @@ import {SortType, UpdateType, UserAction, FilterType} from "../const.js";
 import {filter} from "../utils/filter.js";
 
 export default class Trip {
-  constructor(boardContainer, tripInfoContainer, pointsModel, filterModel, offersModel, destinationsModel, api) {
+  constructor(boardContainer, tripInfoContainer, pointsModel, filterModel, offersModel, destinationsModel, apiWithProvider) {
     this._pointsModel = pointsModel;
     this._filterModel = filterModel;
     this._offersModel = offersModel;
@@ -28,7 +28,7 @@ export default class Trip {
     this._pricePresenter = [];
     this._currentSortType = SortType.DEFAULT;
     this._isLoading = true;
-    this._api = api;
+    this._apiWithProvider = apiWithProvider;
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
@@ -87,7 +87,7 @@ export default class Trip {
     switch (actionType) {
       case UserAction.UPDATE_POINT:
         this._pointPresenter[update.id].setViewState(PointPresenterViewState.SAVING);
-        this._api.updatePoint(update)
+        this._apiWithProvider.updatePoint(update)
           .then((response) => {
             this._pointsModel.updatePoint(updateType, response);
           })
@@ -97,7 +97,7 @@ export default class Trip {
         break;
       case UserAction.ADD_POINT:
         this._pointNewPresenter.setSaving();
-        this._api.addPoint(update)
+        this._apiWithProvider.addPoint(update)
           .then((response) => {
             this._pointsModel.addPoint(updateType, response);
           })
@@ -107,7 +107,7 @@ export default class Trip {
         break;
       case UserAction.DELETE_POINT:
         this._pointPresenter[update.id].setViewState(PointPresenterViewState.DELETING);
-        this._api.deletePoint(update)
+        this._apiWithProvider.deletePoint(update)
           .then(() => {
             this._pointsModel.deletePoint(updateType, update);
           })

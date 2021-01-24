@@ -7,10 +7,18 @@ import PointsModel from "./model/points.js";
 import FilterModel from "./model/filter.js";
 import OffersModel from "./model/offers.js";
 import DestinationsModel from "./model/destinations.js";
+import {isOnline} from "./utils/common.js";
 import {render, RenderPosition} from "./utils/render.js";
+import {toast} from "./utils/toast/toast.js";
 import {END_POINT, AUTHORIZATION, MenuItem, UpdateType, FilterType} from "./const.js";
-import Api from "./api.js";
-
+import Api from "./api/api.js";
+import Store from "./api/store.js";
+import Provider from "./api/provider.js";
+const STORE_PREFIX = `bigtrip-localstorage`;
+const STORE_VER = `v13`;
+const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
+const STORE_OFFERS_NAME = `${STORE_PREFIX}-${STORE_VER}-offers`;
+const STORE_DESTINATIONS_NAME = `${STORE_PREFIX}-${STORE_VER}-destinations`;
 const pointsModel = new PointsModel();
 const filterModel = new FilterModel();
 const destinationsModel = new DestinationsModel();
@@ -28,8 +36,12 @@ const siteMenuComponent = new SiteMenuView();
 const tripEvents = document.querySelector(`.trip-events`);
 
 const api = new Api(END_POINT, AUTHORIZATION);
+const store = new Store(STORE_NAME, window.localStorage);
+const storeOffers = new Store(STORE_OFFERS_NAME, window.localStorage);
+const storeDestinations = new Store(STORE_DESTINATIONS_NAME, window.localStorage);
+const apiWithProvider = new Provider(api, store, storeOffers, storeDestinations);
 
-const boardPresenter = new BoardPresenter(tripEvents, tripInfo, pointsModel, filterModel, offersModel, destinationsModel, api);
+const boardPresenter = new BoardPresenter(tripEvents, tripInfo, pointsModel, filterModel, offersModel, destinationsModel, apiWithProvider);
 
 const filterPresenter = new FilterPresenter(tripMainTripControlsTitles[1], filterModel, pointsModel);
 filterPresenter.init();
@@ -68,6 +80,13 @@ eventAddBtn.addEventListener(`click`, () => {
   boardPresenter.show();
   document.querySelector(`.page-main .page-body__container`).classList.remove(`noafter`);
   filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+
+  if (!isOnline()) {
+    toast(`You can't create new task offline`);
+    siteMenuComponent.setMenuItem(MenuItem.POINTS);
+    return;
+  }
+
   boardPresenter.createPoint(handlePointNewFormClose);
   siteMenuComponent.removeActiveClass();
   document.querySelector(`.trip-tabs`).style.pointerEvents = `none`;
@@ -78,7 +97,7 @@ const unblockMenu = () => {
   siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
 };
 
-api.getOffers()
+apiWithProvider.getOffers()
   .then((offers) => {
     offersModel.setOffers(UpdateType.INIT, offers);
   })
@@ -86,7 +105,7 @@ api.getOffers()
     offersModel.setOffers(UpdateType.INIT, []);
   });
 
-api.getDestinations()
+apiWithProvider.getDestinations()
   .then((destinations) => {
     destinationsModel.setDestinations(UpdateType.INIT, destinations);
   })
@@ -94,7 +113,7 @@ api.getDestinations()
     destinationsModel.setDestinations(UpdateType.INIT, []);
   });
 
-api.getPoints()
+apiWithProvider.getPoints()
   .then((points) => {
     pointsModel.setPoints(UpdateType.INIT, points);
     unblockMenu();
@@ -104,3 +123,15 @@ api.getPoints()
     unblockMenu();
   });
 
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`./sw.js`);
+});
+
+window.addEventListener(`online`, () => {
+  document.title = document.title.replace(` [offline]`, ``);
+  apiWithProvider.sync();
+});
+
+window.addEventListener(`offline`, () => {
+  document.title += ` [offline]`;
+});
