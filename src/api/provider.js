@@ -35,28 +35,18 @@ export default class Provider {
 
   getOffers() {
     if (isOnline()) {
-      return this._api.getOffers()
-        .then((offers) => {
-          const items = createStoreStructure(offers);
-          this._store.setItems(items);
-          return offers;
-        });
+      return this._api.getOffers();
+    } else {
+      return {};
     }
-    const storeOffers = Object.values(this._store.getItems());
-    return Promise.resolve(storeOffers);
   }
 
   getDestinations() {
     if (isOnline()) {
-      return this._api.getDestinations()
-        .then((destinations) => {
-          const items = createStoreStructure(destinations);
-          this._store.setItems(items);
-          return destinations;
-        });
+      return this._api.getDestinations();
+    } else {
+      return {};
     }
-    const storeDestinations = Object.values(this._store.getItems());
-    return Promise.resolve(storeDestinations);
   }
 
   updatePoint(point) {
