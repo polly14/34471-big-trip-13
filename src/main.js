@@ -17,6 +17,8 @@ import Provider from "./api/provider.js";
 const STORE_PREFIX = `bigtrip-localstorage`;
 const STORE_VER = `v13`;
 const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
+const STORE_OFFERS_NAME = `${STORE_PREFIX}-${STORE_VER}-offers`;
+const STORE_DESTINATIONS_NAME = `${STORE_PREFIX}-${STORE_VER}-destinations`;
 const pointsModel = new PointsModel();
 const filterModel = new FilterModel();
 const destinationsModel = new DestinationsModel();
@@ -35,7 +37,9 @@ const tripEvents = document.querySelector(`.trip-events`);
 
 const api = new Api(END_POINT, AUTHORIZATION);
 const store = new Store(STORE_NAME, window.localStorage);
-const apiWithProvider = new Provider(api, store);
+const storeOffers = new Store(STORE_OFFERS_NAME, window.localStorage);
+const storeDestinations = new Store(STORE_DESTINATIONS_NAME, window.localStorage);
+const apiWithProvider = new Provider(api, store, storeOffers, storeDestinations);
 
 const boardPresenter = new BoardPresenter(tripEvents, tripInfo, pointsModel, filterModel, offersModel, destinationsModel, apiWithProvider);
 

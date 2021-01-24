@@ -15,9 +15,11 @@ const createStoreStructure = (items) => {
 };
 
 export default class Provider {
-  constructor(api, store) {
+  constructor(api, store, offersStore, destinationsStore) {
     this._api = api;
     this._store = store;
+    this._offersStore = offersStore;
+    this._destinationsStore = destinationsStore;
   }
 
   getPoints() {
@@ -33,6 +35,31 @@ export default class Provider {
     return Promise.resolve(storePoints.map(PointsModel.adaptToClient));
   }
 
+  getOffers() {
+    if (isOnline()) {
+      return this._api.getOffers()
+        .then((offers) => {
+          const items = createStoreStructure(offers);
+          this._offersStore.setItems(items);
+          return offers;
+        });
+    }
+    const storeOffers = Object.values(this._offersStore.getItems());
+    return Promise.resolve(storeOffers);
+  }
+
+  getDestinations() {
+    if (isOnline()) {
+      return this._api.getDestinations()
+        .then((destinations) => {
+          const items = createStoreStructure(destinations);
+          this._destinationsStore.setItems(items);
+          return destinations;
+        });
+    }
+    const storeDestinations = Object.values(this._destinationsStore.getItems());
+    return Promise.resolve(storeDestinations);
+  }
 
   updatePoint(point) {
     if (isOnline()) {
