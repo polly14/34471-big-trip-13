@@ -47,7 +47,7 @@ const filterPresenter = new FilterPresenter(tripMainTripControlsTitles[1], filte
 filterPresenter.init();
 boardPresenter.init();
 
-const statisticsComponent = new StatView(pointsModel.getPoints());
+let statisticsComponent = new StatView(pointsModel.getPoints());
 render(tripEvents, statisticsComponent, RenderPosition.AFTEREND);
 statisticsComponent.hide();
 
