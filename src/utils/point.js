@@ -40,10 +40,8 @@ export const getDuration = (dateB, dateC) => {
     return `${days}D ${hours - (days * 24)}H ${minut - (hours * 60)}M`;
   } else if (hours > 0) {
     return `${hours - (days * 24)}H ${minut - (hours * 60)}M`;
-  } else {
-    return `${minut - (hours * 60)}M`;
   }
-
+  return `${minut - (hours * 60)}M`;
 };
 
 const getWeightForNullDate = (dateA, dateB) => {

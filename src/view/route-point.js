@@ -19,7 +19,7 @@ const createRoutePointTemplate = (point) => {
 
   const favorite = isFavorite ? `event__favorite-btn--active` : ``;
 
-  const offersTemplate = () => {
+  const getOffersTemplate = () => {
     const offersCheckedList = pointOffersList
       .slice(0, 3)
       .map((item, index) => createPointOffersTemplate(item, index === 0))
@@ -29,8 +29,8 @@ const createRoutePointTemplate = (point) => {
 
 
   let pretext = ``;
-  const typePretext = () => {
-    if (pointType === `Check-in` || pointType === `Sightseeing` || pointType === `Restaurant`) {
+  const getTypePretext = () => {
+    if (pointType.toLowerCase() === `check-in` || pointType === `sightseeing` || pointType === `restaurant`) {
       pretext = `in`;
     } else {
       pretext = `to`;
@@ -44,7 +44,7 @@ const createRoutePointTemplate = (point) => {
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${pointType.toLowerCase()}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${pointType} ${typePretext()} ${nameDestination}</h3>
+                <h3 class="event__title">${pointType} ${getTypePretext()} ${nameDestination}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime="${dateHumanize(pointStartTime, `YYYY/MM/DD HH:mm`)}">${dateHumanize(pointStartTime, `HH:mm`)}</time>
@@ -58,7 +58,7 @@ const createRoutePointTemplate = (point) => {
                 </p>
                 <h4 class="visually-hidden">Offers:</h4>
                 <ul class="event__selected-offers">
-                  ${offersTemplate()}
+                  ${getOffersTemplate()}
                 </ul>
                 <button class="event__favorite-btn ${favorite}" type="button">
                   <span class="visually-hidden">Add to favorite</span>

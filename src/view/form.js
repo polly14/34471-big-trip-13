@@ -53,14 +53,14 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
   const destinationList = destinationsData.getAllDestinations();
   const typesList = offersData.getAllTypes();
 
-  const destListTemplate = () => {
+  const getDestListTemplate = () => {
     const typeItems = destinationList
       .map((item, index) => createDestinationsList(item, index === 0))
       .join(``);
     return typeItems;
   };
 
-  const typeItemsTemplate = (g) => {
+  const getTypeItemsTemplate = (g) => {
     const typeItems = typesList.filter((item) => TYPEGROUPS[typesList.indexOf(item)].group === g)
       .map((item, index) => createItemTypes(item, index === 0))
       .join(``);
@@ -68,8 +68,8 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
   };
 
   let pretext = ``;
-  const typePretext = () => {
-    if (pointType === `Check-in` || pointType === `Sightseeing` || pointType === `Restaurant`) {
+  const getTypePretext = () => {
+    if (pointType === `check-in` || pointType === `sightseeing` || pointType === `restaurant`) {
       pretext = `in`;
     } else {
       pretext = `to`;
@@ -86,15 +86,14 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
      </div>
   </section>`;
 
-  const photoTemplate = function () {
+  const getPhotoTemplate = function () {
     if (picturesDestination) {
       const pointPhotos = picturesDestination || [];
       return pointPhotos
         .map((item, index) => createPhotos(item, index === 0))
         .join(``);
-    } else {
-      return ``;
     }
+    return ``;
   };
 
   const isSubmitDisabled = (nameDestination === `` || destinationList.indexOf(nameDestination) === -1);
@@ -111,22 +110,22 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Transfer</legend>
-                        ${typeItemsTemplate(`Transfer`)}
+                        ${getTypeItemsTemplate(`Transfer`)}
                       </fieldset>
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Activity</legend>
-                        ${typeItemsTemplate(`Activity`)}
+                        ${getTypeItemsTemplate(`Activity`)}
                       </fieldset>
                     </div>
                   </div>
 
                   <div class="event__field-group  event__field-group--destination">
                     <label class="event__label  event__type-output" for="event-destination-1">
-                      ${pointType} ${typePretext()}
+                      ${pointType} ${getTypePretext()}
                     </label>
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${nameDestination}" list="destination-list-1" ${isDisabled ? `disabled` : ``}>
                     <datalist id="destination-list-1" >
-                      ${destListTemplate()}
+                      ${getDestListTemplate()}
                     </datalist>
                   </div>
 
@@ -165,7 +164,7 @@ const createFormTemplate = (data, offersData, destinationsData, isNewPoint) => {
                     <p class="event__destination-description">${isSubmitDisabled ? `` : descriptionDestination}</p>
                     <div class="event__photos-container">
                       <div class="event__photos-tape">
-                        ${photoTemplate()}
+                        ${getPhotoTemplate()}
                       </div>
                     </div>
                   </section>

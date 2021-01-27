@@ -1,4 +1,4 @@
-import StatView from "./view/stat.js";
+import StatView from "./view/statistics.js";
 import InfoContainerView from "./view/info-container.js";
 import SiteMenuView from "./view/site-menu.js";
 import BoardPresenter from "./presenter/trip.js";
